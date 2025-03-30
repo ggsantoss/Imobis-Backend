@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  password   String
+  name       String
+  phone      String?
+  address    String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  imoveis    Imovel[]   
+  payments   Payment[]  
+  anuncios   Anuncio[]  
+  credits    Credits[]
+}
+
+model Imovel {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  address     String
+  area        Float
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id]) 
+  status      ImovelStatus
+  images      Imagem[]     
+  anuncios    Anuncio[]   
+  payments    Payment[]    
+}
+
+model Imagem {
+  id        Int      @id @default(autoincrement())
+  url       String
+  imovelId  Int
+  imovel    Imovel   @relation(fields: [imovelId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id               Int      @id @default(autoincrement())
+  paymentId        String?  @unique
+  amount           Float
+  status           PaymentStatus   
+  
+  anuncioId        Int?
+  anuncio          Anuncio?  @relation(fields: [anuncioId], references: [id]) 
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id]) 
+
+  imovelId         Int?
+  imovel           Imovel?  @relation(fields: [imovelId], references: [id]) 
+
+  creditsId        Int?   
+  credits          Credits? @relation(fields: [creditsId], references: [id])
+  
+  externalReference String? @unique
+  
+}
+
+model Anuncio {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String
+  visibility  AdVisibility @default(VISIBLE) 
+  tipoAnuncio TipoAnuncio 
+  imovel      Imovel        @relation(fields: [imovelId], references: [id]) 
+  imovelId    Int
+  user        User          @relation(fields: [userId], references: [id]) 
+  userId      Int
+  price       Float?     
+  pagamentos  Payment[]     
+}
+
+model Credits {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  balance      Float    @default(0.0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id])
+
+  payments     Payment[] 
+}
+
+model Blacklist {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  createdAt DateTime @default(now())
+}
+
+enum TipoAnuncio {
+  ALUGUEL
+  COMPRA
+}
+
+enum ImovelStatus {
+  DISPONIVEL
+  VENDIDO
+  ALUGADO
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+enum AdVisibility {
+  VISIBLE
+  INVISIBLE
+}
