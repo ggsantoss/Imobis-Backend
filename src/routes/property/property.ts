@@ -5,6 +5,7 @@ import { GetAllPropertiesController } from '../../controllers/propertyController
 import { GetPropertyByIdController } from '../../controllers/propertyController/getById/getPropertyByIdController';
 import { UpdatePropertyController } from '../../controllers/propertyController/update/updatePropertyController';
 import { blacklistMiddleware } from '../../middleware/blackListMiddleware';
+import { GetPropertyByUserId } from '../../controllers/propertyController/getByUserId/getPropertyByUserId';
 
 export async function propertyRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -16,4 +17,5 @@ export async function propertyRoutes(fastify: FastifyInstance) {
   fastify.get('/properties', GetAllPropertiesController.getAllProperties);
   fastify.get('/property/:id', GetPropertyByIdController.getPropertyById);
   fastify.patch('/property/:id', UpdatePropertyController.update);
+  fastify.get('/user/properties/:id', GetPropertyByUserId.getPropertyByUserId);
 }

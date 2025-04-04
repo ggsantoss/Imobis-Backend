@@ -8,7 +8,11 @@ export interface createPropertyRequestDTO {
   title: string;
   description: string;
   price: number;
-  address: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode?: string;
+  country: string;
   area: number;
   status: PropertyStatus;
   userId: number;

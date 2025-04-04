@@ -27,7 +27,6 @@ model Imovel {
   title       String
   description String
   price       Float
-  address     String
   area        Float
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -37,6 +36,21 @@ model Imovel {
   images      Imagem[]     
   anuncios    Anuncio[]   
   payments    Payment[]    
+
+  addressId   Int
+  address     Address      @relation(fields: [addressId], references: [id])
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  street    String
+  city      String
+  state     String
+  zipCode   String?
+  country   String
+  createdAt DateTime @default(now())
+
+  imoveis   Imovel[]
 }
 
 model Imagem {

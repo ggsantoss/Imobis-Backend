@@ -3,6 +3,8 @@ import Joi from 'joi';
 import { createPropertyRequestDTO } from './createProperyDTO';
 import { ImovelStatus } from '@prisma/client';
 import { PropertyRepository } from '../../../repository/propertyRepository';
+import { AddressRepository } from '../../../repository/adressRepository';
+import { UserRepository } from '../../../repository/userRepository';
 
 export class createPropertyController {
   static async create(req: FastifyRequest, reply: FastifyReply) {
@@ -10,7 +12,11 @@ export class createPropertyController {
       title: Joi.string().required(),
       description: Joi.string().required(),
       price: Joi.number().required(),
-      address: Joi.string().required(),
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      state: Joi.string().required(),
+      zipCode: Joi.string().optional(),
+      country: Joi.string().required(),
       area: Joi.number().required(),
       status: Joi.string()
         .valid(
@@ -32,15 +38,31 @@ export class createPropertyController {
 
       const data: createPropertyRequestDTO = value;
 
+      const findUser = await UserRepository.findById(data.userId);
+
+      if (!findUser) {
+        return reply.status(400).send({ message: 'User not found ' });
+      }
+
+      const newAdress = await AddressRepository.create({
+        street: data.street,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        country: data.country,
+      });
+
       const newProperty = await PropertyRepository.create({
         title: data.title,
         description: data.description,
         price: data.price,
-        address: data.address,
         area: data.area,
         status: data.status as ImovelStatus,
         user: {
           connect: { id: data.userId },
+        },
+        address: {
+          connect: { id: newAdress.id },
         },
         images: data.images
           ? {

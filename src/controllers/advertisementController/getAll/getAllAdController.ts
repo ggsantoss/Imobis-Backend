@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { TipoAnuncio } from '@prisma/client';
 
 export class GetAllAdController {
   static async getAllAd(req: FastifyRequest, reply: FastifyReply) {
@@ -8,6 +9,8 @@ export class GetAllAdController {
         page = '1',
         limit = '10',
         tipoAnuncio,
+        tipoImovel,
+        city,
         minPrice,
         maxPrice,
         userId,
@@ -16,6 +19,8 @@ export class GetAllAdController {
         page?: string;
         limit?: string;
         tipoAnuncio?: string;
+        tipoImovel?: string;
+        city?: string;
         minPrice?: string;
         maxPrice?: string;
         userId?: string;
@@ -24,11 +29,14 @@ export class GetAllAdController {
 
       const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
       const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
-
       const filters = {
         page: pageNumber,
         limit: limitNumber,
-        tipoAnuncio: tipoAnuncio as any,
+        tipoAnuncio: tipoAnuncio
+          ? (tipoAnuncio.trim() as keyof typeof TipoAnuncio)
+          : undefined,
+        tipoImovel: tipoImovel || undefined,
+        city: city || undefined,
         minPrice: minPrice ? parseFloat(minPrice) : undefined,
         maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
         userId: userId ? parseInt(userId, 10) : undefined,
@@ -39,6 +47,7 @@ export class GetAllAdController {
         await AnuncioRepository.getAllAnuncios(filters);
 
       return reply.send({
+        success: true,
         data: anuncios,
         pagination: {
           total,
@@ -49,7 +58,10 @@ export class GetAllAdController {
       });
     } catch (error) {
       console.error('Error fetching properties:', error);
-      return reply.status(500).send({ error: 'Error fetching properties' });
+      return reply.status(500).send({
+        success: false,
+        error: 'Erro ao buscar anúncios. Tente novamente mais tarde.',
+      });
     }
   }
 }

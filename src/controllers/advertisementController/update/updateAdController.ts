@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
 import { updateAdRequestDTO } from './updateAdDTO';
+import { AdVisibility } from '@prisma/client';
 
 export class UpdateAdController {
   static async updateAd(req: FastifyRequest, reply: FastifyReply) {
@@ -20,6 +21,9 @@ export class UpdateAdController {
         imovelId: Joi.number().optional(),
         userId: Joi.number().optional(),
         price: Joi.number().optional(),
+        status: Joi.string()
+          .valid(...Object.values(AdVisibility))
+          .optional(),
       });
 
       const { error, value } = anuncioSchema.validate(req.body);

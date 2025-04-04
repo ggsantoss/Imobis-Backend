@@ -52,4 +52,12 @@ export class PropertyRepository {
 
     return deletedProperty;
   }
+
+  public static async getPropertyByUserId(userId: number) {
+    return prisma.imovel.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+  }
 }

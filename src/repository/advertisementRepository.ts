@@ -13,6 +13,9 @@ export class AnuncioRepository {
     page?: number;
     limit?: number;
     tipoAnuncio?: TipoAnuncio;
+    tipoImovel?: string;
+    finalidade?: string;
+    city?: string;
     minPrice?: number;
     maxPrice?: number;
     userId?: number;
@@ -22,6 +25,9 @@ export class AnuncioRepository {
       page = 1,
       limit = 10,
       tipoAnuncio,
+      tipoImovel,
+      finalidade,
+      city,
       minPrice,
       maxPrice,
       userId,
@@ -29,28 +35,18 @@ export class AnuncioRepository {
     } = filters;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.AnuncioWhereInput = {};
-
-    if (tipoAnuncio) where.tipoAnuncio = tipoAnuncio;
-
-    if (minPrice || maxPrice) {
-      where.imovel = {
-        price: {
-          gte: minPrice,
-          lte: maxPrice,
-        },
-      };
-    }
-
-    if (userId) {
-      where.imovel = {
-        userId,
-      };
-    }
-
-    if (imovelId) {
-      where.imovelId = imovelId;
-    }
+    const where: Prisma.AnuncioWhereInput = {
+      tipoAnuncio,
+      ...(tipoImovel ? { tipoImovel } : {}),
+      ...(minPrice || maxPrice
+        ? { price: { gte: minPrice, lte: maxPrice } }
+        : {}),
+      ...(userId ? { userId } : {}),
+      ...(imovelId ? { imovelId } : {}),
+      imovel: {
+        ...(city ? { address: { is: { city } } } : {}),
+      },
+    };
 
     const anuncios = await prisma.anuncio.findMany({
       where,
@@ -59,15 +55,14 @@ export class AnuncioRepository {
       include: {
         imovel: {
           include: {
+            address: true,
             user: true,
           },
         },
       },
     });
 
-    const total = await prisma.anuncio.count({
-      where,
-    });
+    const total = await prisma.anuncio.count({ where });
 
     return {
       anuncios,
@@ -115,6 +110,14 @@ export class AnuncioRepository {
     return prisma.anuncio.update({
       where: { id },
       data: { visibility },
+    });
+  }
+
+  public static async getAdsByUserId(userId: number) {
+    return prisma.anuncio.findMany({
+      where: {
+        userId: userId,
+      },
     });
   }
 }

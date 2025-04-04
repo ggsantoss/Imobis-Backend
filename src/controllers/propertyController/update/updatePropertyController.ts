@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
 import { updatePropertyRequestDTO } from './updatePropertyDTO';
+import { ImovelStatus } from '@prisma/client';
 
 export class UpdatePropertyController {
   static async update(req: FastifyRequest, reply: FastifyReply) {
@@ -14,6 +15,9 @@ export class UpdatePropertyController {
       price: Joi.number().optional(),
       imovelId: Joi.number().optional(),
       userId: Joi.number().optional(),
+      status: Joi.string()
+        .valid(...Object.values(ImovelStatus))
+        .optional(),
     });
 
     const { error, value } = propertySchema.validate(req.body);

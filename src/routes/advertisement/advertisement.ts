@@ -5,6 +5,7 @@ import { GetAllAdController } from '../../controllers/advertisementController/ge
 import { GetAdByIdController } from '../../controllers/advertisementController/getById/getAdByIdController';
 import { UpdateAdController } from '../../controllers/advertisementController/update/updateAdController';
 import { SoftDeleteController } from '../../controllers/advertisementController/softDelete/softDeleteController';
+import { GetAdsByUserId } from '../../controllers/advertisementController/getAdvertisementsByUserId/getAdsByUserId';
 
 export async function advertisementRoutes(fastify: FastifyInstance) {
   fastify.post('/advertisement', CreateAdController.createAd);
@@ -16,4 +17,5 @@ export async function advertisementRoutes(fastify: FastifyInstance) {
     '/advertisement/soft_delete/:id',
     SoftDeleteController.softDeleteAd,
   );
+  fastify.get('/user/advertisements/:id', GetAdsByUserId.getAdsByUserId);
 }
