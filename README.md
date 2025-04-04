@@ -49,7 +49,7 @@ Welcome to **ImobiFlex**, a modern and flexible real estate platform where users
 ### 1️⃣ Clone the Repository
 
 ```bash
- git clone https://github.com/SrCrow02/Imobis-Backend.git
+ git clone https://github.com/ggsantoss/Imobis-Backend.git
  cd Imobis-Backend
 ```
 
