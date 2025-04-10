@@ -7,7 +7,7 @@ import { CreditsRepository } from '../../../../repository/creditsRepository';
 import { preference } from '../../../../service/mercadopagoService';
 import { PaymentRepository } from '../../../../repository/paymentRepository';
 
-export class BuyCredtisController {
+export class BuyCreditsController {
   static async buy(req: FastifyRequest, reply: FastifyReply) {
     const userSchema = Joi.object({
       userId: Joi.number().required(),

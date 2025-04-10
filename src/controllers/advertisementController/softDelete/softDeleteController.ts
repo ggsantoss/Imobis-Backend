@@ -1,14 +1,16 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import { AdVisibility } from '@prisma/client';
 
-interface Params {
-  id: string;
+interface SoftDeleteRoute extends RouteGenericInterface {
+  Params: {
+    id: string;
+  };
 }
 
 export class SoftDeleteController {
   static async softDeleteAd(
-    req: FastifyRequest<{ Params: Params }>,
+    req: FastifyRequest<SoftDeleteRoute>,
     reply: FastifyReply,
   ) {
     const id = Number(req.params.id);

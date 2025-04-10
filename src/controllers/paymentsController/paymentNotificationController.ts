@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 import { MercadoPagoConfig } from 'mercadopago';
 import { envConfig } from '../../config/envConfig';
 import { PaymentRepository } from '../../repository/paymentRepository';
@@ -8,15 +8,17 @@ const client = new MercadoPagoConfig({
   accessToken: envConfig.MP_ACCESS_TOKEN,
 });
 
-interface PaymentNotificationBody {
-  id: string;
-  status: string;
-  external_reference: string;
+interface PaymentNotificationBody extends RouteGenericInterface {
+  Body: {
+    id: string;
+    status: string;
+    external_reference: string;
+  };
 }
 
 export class PaymentNotificationController {
   static async handleNotification(
-    req: FastifyRequest<{ Body: PaymentNotificationBody }>,
+    req: FastifyRequest<PaymentNotificationBody>,
     reply: FastifyReply,
   ) {
     try {

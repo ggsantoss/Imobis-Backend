@@ -6,16 +6,35 @@ import { GetAdByIdController } from '../../controllers/advertisementController/g
 import { UpdateAdController } from '../../controllers/advertisementController/update/updateAdController';
 import { SoftDeleteController } from '../../controllers/advertisementController/softDelete/softDeleteController';
 import { GetAdsByUserId } from '../../controllers/advertisementController/getAdvertisementsByUserId/getAdsByUserId';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import { verifyAdmin } from '../../middleware/verifyAdmin';
 
 export async function advertisementRoutes(fastify: FastifyInstance) {
-  fastify.post('/advertisement', CreateAdController.createAd);
-  fastify.delete('/advertisement/:id', DeleteAdController.deleteAd);
+  // Rotas públicas
   fastify.get('/advertisements', GetAllAdController.getAllAd);
-  fastify.get('/advertisement/:id', GetAdByIdController.getAdById);
-  fastify.patch('/advertisement/:id', UpdateAdController.updateAd);
+  fastify.get('/advertisements/:id', GetAdByIdController.getAdById);
+  fastify.get('/users/:id/advertisements', GetAdsByUserId.getAdsByUserId);
+
+  // Rotas privadas
   fastify.post(
-    '/advertisement/soft_delete/:id',
+    '/advertisements',
+    { preHandler: authMiddleware },
+    CreateAdController.createAd,
+  );
+  fastify.patch(
+    '/advertisements/:id',
+    { preHandler: authMiddleware },
+    UpdateAdController.updateAd,
+  );
+  fastify.patch(
+    '/advertisements/:id/soft-delete',
+    { preHandler: authMiddleware },
     SoftDeleteController.softDeleteAd,
   );
-  fastify.get('/user/advertisements/:id', GetAdsByUserId.getAdsByUserId);
+
+  fastify.delete(
+    '/advertisements/:id',
+    { preHandler: [authMiddleware, verifyAdmin] },
+    DeleteAdController.deleteAd,
+  );
 }

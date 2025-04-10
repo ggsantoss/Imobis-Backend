@@ -8,19 +8,39 @@ import { verifyAdmin } from '../../middleware/verifyAdmin';
 import { LogoutUserController } from '../../controllers/authController/logout/logoutUserController';
 import { ForgotPasswordController } from '../../controllers/authController/forgotPassword/forgotPasswordController';
 import { ResetPasswordController } from '../../controllers/authController/resetPassword/resetPasswordController';
-import { blacklistMiddleware } from '../../middleware/blackListMiddleware';
+import { authMiddleware } from '../../middleware/authMiddleware';
 
 export async function userRoutes(fastify: FastifyInstance) {
-  fastify.post('/register', registerUserController.createUser);
-  fastify.post('/login', loginUserController.loginUser);
+  // Rotas de autenticação
+  fastify.post('/auth/register', registerUserController.createUser);
+  fastify.post('/auth/login', loginUserController.loginUser);
+  fastify.post(
+    '/auth/forgot-password',
+    ForgotPasswordController.forgotPassword,
+  );
+  fastify.patch('/auth/reset-password', ResetPasswordController.resetPassword);
+
+  fastify.post(
+    '/auth/logout',
+    { preHandler: [authMiddleware] },
+    LogoutUserController.create,
+  );
+
+  // Rotas de usuário
+  fastify.get(
+    '/users/:id',
+    { preHandler: authMiddleware },
+    GetUserByIdController.getUserById,
+  );
+
+  fastify.get(
+    '/users',
+    { preHandler: [authMiddleware, verifyAdmin] },
+    GetAllUsersController.getUsers,
+  );
   fastify.delete(
     '/users',
-    { preHandler: verifyAdmin },
+    { preHandler: [authMiddleware, verifyAdmin] },
     DeleteUserController.deleteUser,
   );
-  fastify.get('/users/:id', GetUserByIdController.getUserById);
-  fastify.get('/users', GetAllUsersController.getUsers);
-  fastify.post('/logout', LogoutUserController.create);
-  fastify.post('/reset_password', ForgotPasswordController.forgotPassword);
-  fastify.patch('/change_password', ResetPasswordController.resetPassword);
 }

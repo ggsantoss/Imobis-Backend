@@ -4,18 +4,37 @@ import { DeletePropertyController } from '../../controllers/propertyController/d
 import { GetAllPropertiesController } from '../../controllers/propertyController/getAll/getAllPropertiesController';
 import { GetPropertyByIdController } from '../../controllers/propertyController/getById/getPropertyByIdController';
 import { UpdatePropertyController } from '../../controllers/propertyController/update/updatePropertyController';
-import { blacklistMiddleware } from '../../middleware/blackListMiddleware';
 import { GetPropertyByUserId } from '../../controllers/propertyController/getByUserId/getPropertyByUserId';
 
+import { authMiddleware } from '../../middleware/authMiddleware';
+
 export async function propertyRoutes(fastify: FastifyInstance) {
-  fastify.post(
-    '/property',
-    { preHandler: blacklistMiddleware },
-    createPropertyController.create,
-  );
-  fastify.delete('/property/:id', DeletePropertyController.deleteProperty);
+  // Rotas públicas
   fastify.get('/properties', GetAllPropertiesController.getAllProperties);
   fastify.get('/property/:id', GetPropertyByIdController.getPropertyById);
-  fastify.patch('/property/:id', UpdatePropertyController.update);
-  fastify.get('/user/properties/:id', GetPropertyByUserId.getPropertyByUserId);
+
+  // Rotas privadas
+  fastify.post(
+    '/property',
+    { preHandler: [authMiddleware] },
+    createPropertyController.create,
+  );
+
+  fastify.delete(
+    '/property/:id',
+    { preHandler: [authMiddleware] },
+    DeletePropertyController.deleteProperty,
+  );
+
+  fastify.patch(
+    '/property/:id',
+    { preHandler: [authMiddleware] },
+    UpdatePropertyController.update,
+  );
+
+  fastify.get(
+    '/user/properties/:id',
+    { preHandler: [authMiddleware] },
+    GetPropertyByUserId.getPropertyByUserId,
+  );
 }

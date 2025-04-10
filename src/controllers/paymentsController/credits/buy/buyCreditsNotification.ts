@@ -1,6 +1,6 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 import Joi from 'joi';
-import { BuyCredtisController } from './buyCreditsController';
+import { BuyCreditsController } from './buyCreditsController';
 import { CreditsRepository } from '../../../../repository/creditsRepository';
 import { PaymentRepository } from '../../../../repository/paymentRepository';
 import { PaymentStatus } from '@prisma/client';
@@ -20,13 +20,15 @@ interface PaymentNotificationBody {
   balance: number;
 }
 
-interface PaymentNotificationQuery {
-  external_reference: string;
+interface PaymentNotificationQuery extends RouteGenericInterface {
+  Querystring: {
+    external_reference: string;
+  };
 }
 
 export class BuyCreditsNotification {
   static async creditsNotification(
-    req: FastifyRequest<{ Querystring: PaymentNotificationQuery }>,
+    req: FastifyRequest<PaymentNotificationQuery>,
     reply: FastifyReply,
   ) {
     const userSchema = Joi.object({
