@@ -2,3 +2,4 @@ node_modules
 prisma/migrations
 .env
 database
+redis-data

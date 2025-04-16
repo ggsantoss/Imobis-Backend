@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
+import { getCache, setCache } from '../../../utils/cache';
 
 export class GetPropertyByIdController {
   static async getPropertyById(req: FastifyRequest, reply: FastifyReply) {
@@ -16,12 +17,18 @@ export class GetPropertyByIdController {
     try {
       const propertyId = parseInt(id, 10);
 
+      const cacheKey = `property:${propertyId}`;
+
+      const cached = await getCache(cacheKey);
+      if (cached) return reply.status(200).send(cached);
+
       const property = await PropertyRepository.findById(propertyId);
 
       if (!property) {
         return reply.status(404).send({ error: 'Property not found' });
       }
 
+      await setCache(cacheKey, property, 300);
       return reply.status(200).send(property);
     } catch (err) {
       console.error('Error fetching property:', err);
