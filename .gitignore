@@ -3,3 +3,4 @@ prisma/migrations
 .env
 database
 redis-data
+.qodo
