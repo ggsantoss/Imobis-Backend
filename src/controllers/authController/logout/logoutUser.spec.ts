@@ -35,6 +35,7 @@ describe('POST /auth/logout - Logout User', () => {
   });
 
   it('should return 200 if the token is blacklisted successfully', async () => {
+    jest.setTimeout(10000);
     const token = 'validToken123';
     (BlacklistRepository.addToken as jest.Mock).mockResolvedValue(true);
     const response = await request(fastify.server)

@@ -44,16 +44,14 @@ describe('POST /auth/reset-password - Reset Password', () => {
   });
 
   it('should return 400 if the token is invalid', async () => {
-    (JwtUtils.verifyRecoveryToken as jest.Mock).mockImplementation(() => {
-      throw new Error('Invalid token');
-    });
+    (JwtUtils.verifyRecoveryToken as jest.Mock).mockResolvedValue(null);
 
     const response = await request(fastify.server)
       .post('/auth/reset-password')
       .send({ token: 'invalidToken', newPassword: 'newPassword123' });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('Invalid token');
+    expect(response.body.error).toBe('Token expired or invalid!');
   });
 
   it('should return 404 if the user is not found', async () => {

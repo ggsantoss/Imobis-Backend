@@ -8,14 +8,14 @@ export class GetUserByIdController {
       const { id } = req.params as { id: string };
       const userId = parseInt(id, 10);
 
+      if (isNaN(userId)) {
+        return reply.status(400).send({ error: 'Invalid user ID' });
+      }
+
       const cacheKey = `user:${userId}`;
 
       const cached = await getCache(cacheKey);
       if (cached) return reply.status(200).send(cached);
-
-      if (isNaN(userId)) {
-        return reply.status(400).send({ error: 'Invalid user ID' });
-      }
 
       const getUser = await UserRepository.findById(userId);
 

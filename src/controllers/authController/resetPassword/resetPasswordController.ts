@@ -13,30 +13,31 @@ export class ResetPasswordController {
     });
 
     const { error, value } = schema.validate(req.body);
-
     if (error) {
       return reply.status(400).send({ error: error.details[0].message });
     }
 
     const { token, newPassword } = value;
 
-    try {
-      const decoded = JwtUtils.verifyRecoveryToken(token) as { email: string };
+    let decoded: { email?: string };
+    decoded = await JwtUtils.verifyRecoveryToken(token); // as { email?: string }
+    if (!decoded) {
+      return reply.status(400).send({ error: 'Token expired or invalid!' });
+    }
 
-      if (!decoded.email) {
-        return reply.status(400).send({ error: 'Invalid token' });
+    try {
+      const isBlacklisted = await BlacklistRepository.isTokenBlacklisted(token);
+      if (isBlacklisted) {
+        return reply.status(404).send({ error: 'Token expired or invalid!' });
       }
 
-      const user = await UserRepository.findByEmail(decoded.email);
-
-      if (!user) {
+      if (!decoded?.email) {
         return reply.status(404).send({ error: 'User not found' });
       }
 
-      const findBlacklist = await BlacklistRepository.isTokenBlacklisted(token);
-
-      if (findBlacklist) {
-        return reply.status(404).send({ error: 'Token expired or invalid!' });
+      const user = await UserRepository.findByEmail(decoded.email);
+      if (!user) {
+        return reply.status(404).send({ error: 'User not found' });
       }
 
       const hashedPassword = await BcryptUtils.hashPassword(newPassword);

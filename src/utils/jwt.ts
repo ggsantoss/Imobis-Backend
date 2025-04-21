@@ -20,9 +20,15 @@ export class JwtUtils {
 
   public static verifyRecoveryToken(token: string): any {
     try {
+      if (typeof token !== 'string' || token.split('.').length !== 3) {
+        console.log('[JWT VERIFY] Malformed token detected');
+        return null;
+      }
+
       return jwt.verify(token, envConfig.SMTP_SECRET);
     } catch (err) {
-      throw new Error('Invalid or expired token');
+      console.log('[JWT VERIFY ERROR]', err);
+      return null;
     }
   }
 }

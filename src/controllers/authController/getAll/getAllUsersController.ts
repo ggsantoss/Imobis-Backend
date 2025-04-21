@@ -9,8 +9,20 @@ export class GetAllUsersController {
         limit?: string;
       };
 
-      const pageNumber = parseInt(page, 10) || 1;
-      const limitNumber = parseInt(limit, 10) || 10;
+      const parsedPage = parseInt(page, 10);
+      const parsedLimit = parseInt(limit, 10);
+
+      if (
+        isNaN(parsedPage) ||
+        isNaN(parsedLimit) ||
+        parsedPage < 1 ||
+        parsedLimit < 1
+      ) {
+        return reply.status(400).send({ error: 'Invalid query parameters' });
+      }
+
+      const pageNumber = parsedPage;
+      const limitNumber = parsedLimit;
       const skip = (pageNumber - 1) * limitNumber;
 
       const users = await UserRepository.getAllUsers(limitNumber, skip);

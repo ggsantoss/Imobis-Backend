@@ -6,9 +6,9 @@ export class DeleteUserController {
   static async deleteUser(req: FastifyRequest, reply: FastifyReply) {
     const schema = Joi.object({
       id: Joi.number().integer().required().messages({
-        'number.base': 'id must be a number',
-        'number.integer': 'id must be an integer',
-        'any.required': 'id is required',
+        'number.base': '"id" must be a number',
+        'number.integer': '"id" must be an integer',
+        'any.required': '"id" is required',
       }),
     });
 

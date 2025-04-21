@@ -52,10 +52,13 @@ describe('GET /users/:id - Get user by ID', () => {
   });
 
   it('should return 500 if there is an unexpected error', async () => {
+    (getCache as jest.Mock).mockResolvedValue(null);
     (UserRepository.findById as jest.Mock).mockRejectedValue(
       new Error('Database error'),
     );
+
     const response = await request(fastify.server).get('/users/1').send();
+
     expect(response.status).toBe(500);
     expect(response.body.error).toBe('Something went wrong');
   });
