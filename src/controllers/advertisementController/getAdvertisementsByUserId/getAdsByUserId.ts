@@ -16,6 +16,11 @@ export class GetAdsByUserId {
     }
 
     try {
+      const cacheKey = `user:${userId}:ads`;
+
+      const cached = await getCache(cacheKey);
+      if (cached) return reply.status(200).send(cached);
+
       const advertisement = await AnuncioRepository.getAdsByUserId(userId);
 
       if (!advertisement || advertisement.length === 0) {
@@ -23,11 +28,6 @@ export class GetAdsByUserId {
           .status(404)
           .send({ error: 'The user does not have any advertisements' });
       }
-
-      const cacheKey = `user:${userId}:ads`;
-
-      const cached = await getCache(cacheKey);
-      if (cached) return reply.status(200).send(cached);
 
       await setCache(cacheKey, advertisement, 60);
 

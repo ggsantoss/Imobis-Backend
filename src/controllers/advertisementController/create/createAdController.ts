@@ -29,12 +29,12 @@ export class CreateAdController {
 
       const imovelExists = await PropertyRepository.findById(data.imovelId);
       if (!imovelExists) {
-        return reply.status(400).send({ error: 'Imóvel não encontrado' });
+        return reply.status(400).send({ error: 'Property not found' });
       }
 
       const userExists = await UserRepository.findById(data.userId);
       if (!userExists) {
-        return reply.status(400).send({ error: 'Usuário não encontrado' });
+        return reply.status(400).send({ error: 'User not found' });
       }
 
       const visibility = data.visibility as AdVisibility;

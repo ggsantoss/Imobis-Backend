@@ -27,11 +27,26 @@ export class GetAllAdController {
         imovelId?: string;
       };
 
-      const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
-      const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+
+      if (isNaN(pageNumber) || pageNumber <= 0) {
+        return reply.status(400).send({
+          success: false,
+          error: 'Invalid page or limit',
+        });
+      }
+
+      if (isNaN(limitNumber) || limitNumber <= 0) {
+        return reply.status(400).send({
+          success: false,
+          error: 'Invalid page or limit',
+        });
+      }
+
       const filters = {
-        page: pageNumber,
-        limit: limitNumber,
+        page: Math.max(pageNumber, 1),
+        limit: Math.max(limitNumber, 1),
         tipoAnuncio: tipoAnuncio
           ? (tipoAnuncio.trim() as keyof typeof TipoAnuncio)
           : undefined,
@@ -51,8 +66,8 @@ export class GetAllAdController {
         data: anuncios,
         pagination: {
           total,
-          page: pageNumber,
-          limit: limitNumber,
+          page: filters.page,
+          limit: filters.limit,
           totalPages,
         },
       });
@@ -60,7 +75,7 @@ export class GetAllAdController {
       console.error('Error fetching properties:', error);
       return reply.status(500).send({
         success: false,
-        error: 'Erro ao buscar anúncios. Tente novamente mais tarde.',
+        error: 'Error fetching ads. Please try again later.',
       });
     }
   }

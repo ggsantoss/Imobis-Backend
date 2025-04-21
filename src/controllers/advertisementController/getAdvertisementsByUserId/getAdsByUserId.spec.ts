@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
-import { GetAdByIdController } from './getAdByIdController';
+import { GetAdsByUserId } from './getAdsByUserId';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import * as cache from '../../../utils/cache';
 
@@ -11,7 +11,7 @@ let fastify: FastifyInstance;
 
 beforeAll(async () => {
   fastify = Fastify();
-  fastify.get('/ads/:id', GetAdByIdController.getAdById);
+  fastify.get('/ads/user/:id', GetAdsByUserId.getAdsByUserId);
   await fastify.ready();
 });
 
@@ -19,69 +19,72 @@ afterAll(async () => {
   await fastify.close();
 });
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+describe('GET /ads/user/:id - Get Ads by User ID', () => {
+  const fakeAds = [
+    {
+      id: 1,
+      userId: 2,
+      title: 'Apartamento legal',
+      description: 'Descrição do anúncio',
+      price: 1200.0,
+    },
+  ];
 
-describe('GET /ads/:id - Get Advertisement by ID', () => {
-  const fakeAd = {
-    id: 1,
-    userId: 2,
-    title: 'Apartamento legal',
-    description: 'Descrição do anúncio',
-    price: 1200.0,
-  };
-
-  it('should return 400 if advertisement ID is invalid', async () => {
+  it('should return 400 if user ID is invalid', async () => {
     const response = await fastify.inject({
       method: 'GET',
-      url: '/ads/abc',
+      url: '/ads/user/abc',
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().error).toBe('Invalid advertisement ID');
+    expect(response.json().error).toBe('Invalid user ID');
   });
 
-  it('should return 404 if advertisement is not found', async () => {
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(null);
+  it('should return 404 if user has no ads', async () => {
+    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue([]);
 
     const response = await fastify.inject({
       method: 'GET',
-      url: '/ads/999',
+      url: '/ads/user/99',
     });
 
     expect(response.statusCode).toBe(404);
-    expect(response.json().error).toBe('Advertisement not found');
+    expect(response.json().error).toBe(
+      'The user does not have any advertisements',
+    );
   });
 
-  it('should return advertisement and set cache if not cached', async () => {
+  it('should return ads and set cache if not cached', async () => {
     (cache.getCache as jest.Mock).mockResolvedValue(null);
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(fakeAd);
+
+    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
 
     const setCacheMock = jest.fn().mockResolvedValue(undefined);
     (cache.setCache as jest.Mock) = setCacheMock;
 
     const response = await fastify.inject({
       method: 'GET',
-      url: '/ads/1',
+      url: '/ads/user/2',
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().data).toEqual(fakeAd);
-    expect(setCacheMock).toHaveBeenCalledWith('advertisement:1', fakeAd, 300);
+    expect(response.json()).toEqual(fakeAds);
+    expect(setCacheMock).toHaveBeenCalledWith('user:2:ads', fakeAds, 60);
   });
 
-  it('should return advertisement from cache if cached', async () => {
-    (cache.getCache as jest.Mock).mockResolvedValue(fakeAd);
+  it('should return ads and set cache if not cached', async () => {
+    (cache.getCache as jest.Mock).mockResolvedValue(null);
+    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
+    (cache.setCache as jest.Mock).mockResolvedValue(undefined);
 
     const response = await fastify.inject({
       method: 'GET',
-      url: '/ads/1',
+      url: '/ads/user/2',
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().data).toEqual(fakeAd);
-    expect(cache.setCache).not.toHaveBeenCalled();
+    expect(response.json()).toEqual(fakeAds);
+    expect(cache.setCache).toHaveBeenCalledWith('user:2:ads', fakeAds, 60);
   });
 
   it('should return 500 on unexpected error', async () => {
@@ -89,7 +92,7 @@ describe('GET /ads/:id - Get Advertisement by ID', () => {
 
     const response = await fastify.inject({
       method: 'GET',
-      url: '/ads/1',
+      url: '/ads/user/2',
     });
 
     expect(response.statusCode).toBe(500);
