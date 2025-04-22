@@ -14,6 +14,8 @@
     "@bull-board/api": "^6.9.1",
     "@bull-board/fastify": "^6.9.1",
     "@fastify/cors": "^11.0.1",
+    "@fastify/helmet": "^13.0.1",
+    "@fastify/rate-limit": "^10.2.2",
     "@prisma/client": "^6.5.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",

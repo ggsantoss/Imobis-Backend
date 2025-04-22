@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt';
+import { envConfig } from '../config/envConfig';
 
 export class BcryptUtils {
   public static async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
+    const saltRounds = envConfig.BCRYPT_SALT_ROUNDS;
+    const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;
   }
