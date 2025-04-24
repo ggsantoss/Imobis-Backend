@@ -9,13 +9,23 @@ import { LogoutUserController } from '../../controllers/authController/logout/lo
 import { ForgotPasswordController } from '../../controllers/authController/forgotPassword/forgotPasswordController';
 import { ResetPasswordController } from '../../controllers/authController/resetPassword/resetPasswordController';
 import { authMiddleware } from '../../middleware/authMiddleware';
+import { auditLogMiddleware } from '../../middleware/auditLog';
 
 export async function userRoutes(fastify: FastifyInstance) {
   // Rotas de autenticação
-  fastify.post('/auth/register', registerUserController.createUser);
-  fastify.post('/auth/login', loginUserController.loginUser);
+  fastify.post(
+    '/auth/register',
+    { preHandler: [] },
+    registerUserController.createUser,
+  );
+  fastify.post(
+    '/auth/login',
+    { preHandler: [] },
+    loginUserController.loginUser,
+  );
   fastify.post(
     '/auth/forgot-password',
+    { preHandler: [] },
     ForgotPasswordController.forgotPassword,
   );
   fastify.patch('/auth/reset-password', ResetPasswordController.resetPassword);
@@ -29,7 +39,7 @@ export async function userRoutes(fastify: FastifyInstance) {
   // Rotas de usuário
   fastify.get(
     '/users/:id',
-    { preHandler: authMiddleware },
+    { preHandler: [authMiddleware] },
     GetUserByIdController.getUserById,
   );
 

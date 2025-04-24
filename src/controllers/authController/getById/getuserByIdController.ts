@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UserRepository } from '../../../repository/userRepository';
 import { getCache, setCache } from '../../../utils/cache';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetUserByIdController {
   static async getUserById(req: FastifyRequest, reply: FastifyReply) {
@@ -20,6 +22,11 @@ export class GetUserByIdController {
       const getUser = await UserRepository.findById(userId);
 
       if (getUser) {
+        setAuditData(req, userId, 'USER', true, {
+          userId: userId,
+        });
+
+        await auditLogMiddleware(req, reply);
         await setCache(cacheKey, getUser, 300);
         reply.status(200).send(getUser);
       } else {

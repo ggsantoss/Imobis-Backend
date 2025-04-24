@@ -4,6 +4,8 @@ import { UserRepository } from '../../../repository/userRepository';
 import { BcryptUtils } from '../../../utils/bcrypt';
 import Joi from 'joi';
 import { BlacklistRepository } from '../../../repository/blackListRepository';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class ResetPasswordController {
   static async resetPassword(req: FastifyRequest, reply: FastifyReply) {
@@ -19,7 +21,7 @@ export class ResetPasswordController {
 
     const { token, newPassword } = value;
 
-    let decoded: { email?: string };
+    let decoded: { email?: string; id?: number };
     decoded = await JwtUtils.verifyRecoveryToken(token); // as { email?: string }
     if (!decoded) {
       return reply.status(400).send({ error: 'Token expired or invalid!' });
@@ -45,6 +47,13 @@ export class ResetPasswordController {
       await UserRepository.updatePassword(user.id, hashedPassword);
 
       await BlacklistRepository.addToken(token);
+
+      setAuditData(req, decoded.id, 'RESET', true, {
+        email: decoded.email,
+        userId: decoded.id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply
         .status(200)
