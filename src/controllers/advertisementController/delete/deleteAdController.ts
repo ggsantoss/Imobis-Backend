@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class DeleteAdController {
   static async deleteAd(req: FastifyRequest, reply: FastifyReply) {
@@ -27,6 +29,12 @@ export class DeleteAdController {
       if (!deletedProperty) {
         return reply.status(404).send({ error: 'Property not found' });
       }
+
+      setAuditData(req, id, 'DELETE_AD', true, {
+        userId: id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply
         .status(200)

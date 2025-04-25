@@ -1,5 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetAllPropertiesController {
   static async getAllProperties(req: FastifyRequest, reply: FastifyReply) {
@@ -17,6 +19,10 @@ export class GetAllPropertiesController {
         PropertyRepository.getAllProperties(limitNumber, skip),
         PropertyRepository.countProperties(),
       ]);
+
+      setAuditData(req, null, 'GET_PROPERTIES', true);
+
+      await auditLogMiddleware(req, reply);
 
       return reply.send({
         data: properties,

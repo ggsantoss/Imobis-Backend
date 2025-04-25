@@ -7,6 +7,7 @@ import { UpdatePropertyController } from '../../controllers/propertyController/u
 import { GetPropertyByUserId } from '../../controllers/propertyController/getByUserId/getPropertyByUserId';
 
 import { authMiddleware } from '../../middleware/authMiddleware';
+import { auditLogMiddleware } from '../../middleware/auditLog';
 
 export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas públicas

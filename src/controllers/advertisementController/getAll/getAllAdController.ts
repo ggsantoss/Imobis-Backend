@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import { TipoAnuncio } from '@prisma/client';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetAllAdController {
   static async getAllAd(req: FastifyRequest, reply: FastifyReply) {
@@ -60,6 +62,10 @@ export class GetAllAdController {
 
       const { anuncios, total, totalPages } =
         await AnuncioRepository.getAllAnuncios(filters);
+
+      setAuditData(req, null, 'GET_ALL_ADS', true);
+
+      await auditLogMiddleware(req, reply);
 
       return reply.send({
         success: true,

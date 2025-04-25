@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetPropertyByUserId {
   static async getPropertyByUserId(req: FastifyRequest, reply: FastifyReply) {
@@ -23,6 +25,12 @@ export class GetPropertyByUserId {
           .status(404)
           .send({ error: 'The user do not have any property' });
       }
+
+      setAuditData(req, userId, 'GET_PROPERTY_BY_USER_ID', true, {
+        userId: userId,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply.status(200).send(property);
     } catch (err) {
