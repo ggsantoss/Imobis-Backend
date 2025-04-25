@@ -22,7 +22,7 @@ export class GetUserByIdController {
       const getUser = await UserRepository.findById(userId);
 
       if (getUser) {
-        setAuditData(req, userId, 'USER', true, {
+        setAuditData(req, userId, 'GET_USER_BY_ID', true, {
           userId: userId,
         });
 
