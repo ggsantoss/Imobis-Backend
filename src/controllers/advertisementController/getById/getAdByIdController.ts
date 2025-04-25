@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import { getCache, setCache } from '../../../utils/cache';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetAdByIdController {
   static async getAdById(req: FastifyRequest, reply: FastifyReply) {
@@ -20,6 +22,13 @@ export class GetAdByIdController {
 
       if (getAd) {
         await setCache(cacheKey, getAd, 300);
+
+        setAuditData(req, getAd.id, 'GET_AD_BY_ID', true, {
+          advertisementId: id,
+        });
+
+        await auditLogMiddleware(req, reply);
+
         return reply.status(200).send({ data: getAd });
       } else {
         return reply.status(404).send({ error: 'Advertisement not found' });

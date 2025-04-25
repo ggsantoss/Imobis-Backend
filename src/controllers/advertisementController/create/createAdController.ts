@@ -5,6 +5,8 @@ import { createAdDTO } from './createAdDTO';
 import { UserRepository } from '../../../repository/userRepository';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import { AdVisibility } from '@prisma/client';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class CreateAdController {
   static async createAd(req: FastifyRequest, reply: FastifyReply) {
@@ -48,6 +50,12 @@ export class CreateAdController {
         tipoAnuncio: data.tipoAnuncio,
         price: data.price,
       });
+
+      setAuditData(req, null, 'CREATE_AD', true, {
+        email: userExists.email,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       reply.status(201).send(newAd);
     } catch (err) {

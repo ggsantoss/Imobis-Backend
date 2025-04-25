@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import { AdVisibility } from '@prisma/client';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 interface SoftDeleteRoute extends RouteGenericInterface {
   Params: {
@@ -29,6 +31,12 @@ export class SoftDeleteController {
         id,
         AdVisibility.INVISIBLE,
       );
+
+      setAuditData(req, ad.id, 'SOFT_DELETE_AD', true, {
+        advertisementId: ad.id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply.status(200).send({
         message: 'Ad successfully removed',

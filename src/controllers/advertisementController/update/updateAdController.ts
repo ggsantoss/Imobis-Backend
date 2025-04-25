@@ -3,6 +3,8 @@ import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
 import { updateAdRequestDTO } from './updateAdDTO';
 import { AdVisibility } from '@prisma/client';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class UpdateAdController {
   static async updateAd(req: FastifyRequest, reply: FastifyReply) {
@@ -41,6 +43,13 @@ export class UpdateAdController {
       if (!updatedAd) {
         return reply.status(404).send({ error: 'Advertisement not found' });
       }
+
+      setAuditData(req, advertisementId, 'UPDATE_AD', true, {
+        advertisementId: advertisementId,
+        userId: data.userId,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply.status(200).send(updatedAd);
     } catch (err) {
