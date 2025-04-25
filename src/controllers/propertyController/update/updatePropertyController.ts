@@ -3,6 +3,8 @@ import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
 import { updatePropertyRequestDTO } from './updatePropertyDTO';
 import { ImovelStatus } from '@prisma/client';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class UpdatePropertyController {
   static async update(req: FastifyRequest, reply: FastifyReply) {
@@ -36,6 +38,13 @@ export class UpdatePropertyController {
       }
 
       const updatedProperty = await PropertyRepository.update(propertyId, data);
+
+      setAuditData(req, data.userId, 'UPDATE_PROPERTY', true, {
+        userId: data.userId,
+        propertyId: data.imovelId,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply.status(200).send(updatedProperty);
     } catch (err) {
