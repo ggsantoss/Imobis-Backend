@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import Joi from 'joi';
 import { AnuncioRepository } from '../../../repository/advertisementRepository';
 import { getCache, setCache } from '../../../utils/cache';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetAdsByUserId {
   static async getAdsByUserId(req: FastifyRequest, reply: FastifyReply) {
@@ -30,6 +32,12 @@ export class GetAdsByUserId {
       }
 
       await setCache(cacheKey, advertisement, 60);
+
+      setAuditData(req, userId, 'GET_ADS_BY_USER_ID', true, {
+        userId: id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply.status(200).send(advertisement);
     } catch (err) {

@@ -4,6 +4,8 @@ import { BcryptUtils } from '../../../utils/bcrypt';
 import Joi from 'joi';
 import { JwtUtils } from '../../../utils/jwt';
 import { loginUserRequestDTO } from './loginUserDTO';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
+import { setAuditData } from '../../../helpers/auditHelper';
 
 export class loginUserController {
   static async loginUser(req: FastifyRequest, reply: FastifyReply) {
@@ -41,6 +43,13 @@ export class loginUserController {
         email: user.email,
         role: 'ADMIN',
       });
+
+      setAuditData(req, user.id, 'LOGIN', true, {
+        email: data.email,
+        userId: user.id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       reply.status(200).send({ token });
     } catch (err) {

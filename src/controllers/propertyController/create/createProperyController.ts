@@ -5,6 +5,9 @@ import { ImovelStatus } from '@prisma/client';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import { AddressRepository } from '../../../repository/adressRepository';
 import { UserRepository } from '../../../repository/userRepository';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { title } from 'process';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class createPropertyController {
   static async create(req: FastifyRequest, reply: FastifyReply) {
@@ -70,10 +73,17 @@ export class createPropertyController {
             }
           : undefined,
       });
+      setAuditData(req, data.userId, 'CREATE_PROPERTY', true, {
+        userId: data.userId,
+        propertyName: data.title,
+        propertyCity: data.city,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       reply.status(201).send(newProperty);
     } catch (err) {
-      console.error('Error creating property:', err); // Adiciona o log do erro
+      console.error('Error creating property:', err);
       reply.status(500).send({ error: 'Something went wrong' });
     }
   }

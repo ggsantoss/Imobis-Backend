@@ -3,6 +3,8 @@ import { UserRepository } from '../../../repository/userRepository';
 import { BcryptUtils } from '../../../utils/bcrypt';
 import Joi from 'joi';
 import { registerUserRequestDTO } from './registerUserDTO';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class registerUserController {
   static async createUser(req: FastifyRequest, reply: FastifyReply) {
@@ -38,6 +40,12 @@ export class registerUserController {
         phone: data.phone,
         address: data.address,
       });
+
+      setAuditData(req, null, 'REGISTER', true, {
+        email: data.email,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       reply.status(201).send(newUser);
     } catch (err) {

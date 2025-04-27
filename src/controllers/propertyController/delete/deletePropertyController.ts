@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
+import { setAuditData } from '../../../helpers/auditHelper';
 
 export class DeletePropertyController {
   static async deleteProperty(req: FastifyRequest, reply: FastifyReply) {
@@ -26,11 +28,16 @@ export class DeletePropertyController {
 
       if (!deletedProperty) {
         return reply.status(404).send({ error: 'Property not found' });
-      }
+      } else {
+        setAuditData(req, id, 'DELETE_PROPERTY', true, {
+          userId: id,
+        });
 
-      return reply
-        .status(200)
-        .send({ message: 'Property deleted successfully' });
+        await auditLogMiddleware(req, reply);
+        return reply
+          .status(200)
+          .send({ message: 'Property deleted successfully' });
+      }
     } catch (err) {
       if (
         err instanceof PrismaClientKnownRequestError &&

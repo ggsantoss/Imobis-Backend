@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { EmailService } from '../../../service/sendEmailService';
 import { UserRepository } from '../../../repository/userRepository';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
+import { setAuditData } from '../../../helpers/auditHelper';
 
 export class ForgotPasswordController {
   static async forgotPassword(req: FastifyRequest, reply: FastifyReply) {
@@ -17,6 +19,13 @@ export class ForgotPasswordController {
       }
 
       await EmailService.sendPasswordRecoveryEmail(email);
+
+      setAuditData(req, user.id, 'FORGOT', true, {
+        email: email,
+        userId: user.id,
+      });
+
+      await auditLogMiddleware(req, reply);
 
       return reply
         .status(200)

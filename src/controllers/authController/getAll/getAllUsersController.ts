@@ -1,5 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UserRepository } from '../../../repository/userRepository';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetAllUsersController {
   static async getUsers(req: FastifyRequest, reply: FastifyReply) {
@@ -27,6 +29,8 @@ export class GetAllUsersController {
 
       const users = await UserRepository.getAllUsers(limitNumber, skip);
       const totalUsers = await UserRepository.countUsers();
+
+      await auditLogMiddleware(req, reply);
 
       reply.status(200).send({
         data: users,

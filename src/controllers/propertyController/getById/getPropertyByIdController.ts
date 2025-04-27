@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
 import { getCache, setCache } from '../../../utils/cache';
+import { setAuditData } from '../../../helpers/auditHelper';
+import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class GetPropertyByIdController {
   static async getPropertyById(req: FastifyRequest, reply: FastifyReply) {
@@ -29,6 +31,14 @@ export class GetPropertyByIdController {
       }
 
       await setCache(cacheKey, property, 300);
+
+      setAuditData(req, propertyId, 'GET_PROPERTY_BY_ID', true, {
+        propertyId: propertyId,
+        propertyName: property.title,
+      });
+
+      await auditLogMiddleware(req, reply);
+
       return reply.status(200).send(property);
     } catch (err) {
       console.error('Error fetching property:', err);
