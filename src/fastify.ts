@@ -6,9 +6,16 @@ import { userRoutes } from './routes/auth/userAuth';
 import { propertyRoutes } from './routes/property/property';
 import { paymentRoutes } from './routes/payment/payment';
 import { advertisementRoutes } from './routes/advertisement/advertisement';
+import swagger from '@fastify/swagger';
+import swaggerUI from '@fastify/swagger-ui';
 
 export const buildApp = () => {
   const app = Fastify({
+    ajv: {
+      customOptions: {
+        strict: false,
+      },
+    },
     logger: {
       level: 'info',
       transport: {
@@ -43,13 +50,43 @@ export const buildApp = () => {
 
   app.register(fastifyCors, {
     origin: (origin, cb) => {
-      if (!origin || origin === 'http://localhost:3001') {
+      if (!origin || origin === 'http://localhost:3000') {
         cb(null, true);
         return;
       }
       cb(new Error('Not allowed'), false);
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  });
+
+  app.register(swagger, {
+    openapi: {
+      info: {
+        title: 'API Documentation',
+        description: 'API for managing users and authentication',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    },
+  });
+
+  app.register(swaggerUI, {
+    routePrefix: '/docs',
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
   });
 
   app.register(userRoutes);

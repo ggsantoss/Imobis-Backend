@@ -8,33 +8,52 @@ import { SoftDeleteController } from '../../controllers/advertisementController/
 import { GetAdsByUserId } from '../../controllers/advertisementController/getAdvertisementsByUserId/getAdsByUserId';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { verifyAdmin } from '../../middleware/verifyAdmin';
+import { createAdSchema } from '../../schemas/swagger/advertisement/createSchema';
+import { getAllSchema } from '../../schemas/swagger/advertisement/getAllSchema';
+import { getByIdSchema } from '../../schemas/swagger/advertisement/getByIdSchema';
+import { getByUserIdSchema } from '../../schemas/swagger/advertisement/getByUserId';
+import { updateSchema } from '../../schemas/swagger/advertisement/updateSchema';
+import { softDeleteSchema } from '../../schemas/swagger/advertisement/softDeleteSchema';
+import { deleteSchema } from '../../schemas/swagger/advertisement/deleteSchema';
 
 export async function advertisementRoutes(fastify: FastifyInstance) {
   // Rotas públicas
-  fastify.get('/advertisements', GetAllAdController.getAllAd);
-  fastify.get('/advertisements/:id', GetAdByIdController.getAdById);
-  fastify.get('/users/:id/advertisements', GetAdsByUserId.getAdsByUserId);
+  fastify.get(
+    '/advertisements',
+    { schema: getAllSchema },
+    GetAllAdController.getAllAd,
+  );
+  fastify.get(
+    '/advertisements/:id',
+    { schema: getByIdSchema },
+    GetAdByIdController.getAdById,
+  );
+  fastify.get(
+    '/users/:id/advertisements',
+    { schema: getByUserIdSchema },
+    GetAdsByUserId.getAdsByUserId,
+  );
 
   // Rotas privadas
   fastify.post(
     '/advertisements',
-    { preHandler: authMiddleware },
+    { schema: createAdSchema, preHandler: authMiddleware },
     CreateAdController.createAd,
   );
   fastify.patch(
     '/advertisements/:id',
-    { preHandler: authMiddleware },
+    { schema: updateSchema, preHandler: authMiddleware },
     UpdateAdController.updateAd,
   );
   fastify.patch(
     '/advertisements/:id/soft-delete',
-    { preHandler: authMiddleware },
+    { schema: softDeleteSchema, preHandler: authMiddleware },
     SoftDeleteController.softDeleteAd,
   );
 
   fastify.delete(
     '/advertisements/:id',
-    { preHandler: [authMiddleware, verifyAdmin] },
+    { schema: deleteSchema, preHandler: [authMiddleware, verifyAdmin] },
     DeleteAdController.deleteAd,
   );
 }

@@ -7,35 +7,49 @@ import { UpdatePropertyController } from '../../controllers/propertyController/u
 import { GetPropertyByUserId } from '../../controllers/propertyController/getByUserId/getPropertyByUserId';
 
 import { authMiddleware } from '../../middleware/authMiddleware';
-import { auditLogMiddleware } from '../../middleware/auditLog';
+import { createSchema } from '../../schemas/swagger/property/createSchema';
+import { deleteSchema } from '../../schemas/swagger/property/deleteSchema';
+import { getAllSchema } from '../../schemas/swagger/property/getAllSchema';
+import { getByIdSchema } from '../../schemas/swagger/property/getByIdSchema';
+import { getByUserIdSchema } from '../../schemas/swagger/property/getByUserId';
+import { updateSchema } from '../../schemas/swagger/property/updateSchema';
+// import { updateSchema } from '../../schemas/swagger/property/updateSchema';
 
 export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas públicas
-  fastify.get('/properties', GetAllPropertiesController.getAllProperties);
-  fastify.get('/property/:id', GetPropertyByIdController.getPropertyById);
+  fastify.get(
+    '/properties',
+    { schema: getByUserIdSchema },
+    GetAllPropertiesController.getAllProperties,
+  );
+  fastify.get(
+    '/property/:id',
+    { schema: getByIdSchema },
+    GetPropertyByIdController.getPropertyById,
+  );
 
   // Rotas privadas
   fastify.post(
     '/property',
-    { preHandler: [authMiddleware] },
+    { schema: createSchema, preHandler: [authMiddleware] },
     createPropertyController.create,
   );
 
   fastify.delete(
     '/property/:id',
-    { preHandler: [authMiddleware] },
+    { schema: deleteSchema, preHandler: [authMiddleware] },
     DeletePropertyController.deleteProperty,
   );
 
   fastify.patch(
     '/property/:id',
-    { preHandler: [authMiddleware] },
+    { schema: updateSchema, preHandler: [authMiddleware] },
     UpdatePropertyController.update,
   );
 
   fastify.get(
     '/user/properties/:id',
-    { preHandler: [authMiddleware] },
+    { schema: getAllSchema, preHandler: [authMiddleware] },
     GetPropertyByUserId.getPropertyByUserId,
   );
 }
