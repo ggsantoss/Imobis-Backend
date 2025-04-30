@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import Joi from 'joi';
 import { createPropertyRequestDTO } from './createProperyDTO';
-import { ImovelStatus } from '@prisma/client';
+import { PropertyStatus } from '@prisma/client';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import { AddressRepository } from '../../../repository/adressRepository';
 import { UserRepository } from '../../../repository/userRepository';
@@ -23,9 +23,9 @@ export class createPropertyController {
       area: Joi.number().required(),
       status: Joi.string()
         .valid(
-          ImovelStatus.DISPONIVEL,
-          ImovelStatus.VENDIDO,
-          ImovelStatus.ALUGADO,
+          PropertyStatus.AVAILABLE,
+          PropertyStatus.SOLD,
+          PropertyStatus.RENTED,
         )
         .required(),
       userId: Joi.number().required(),
@@ -60,7 +60,7 @@ export class createPropertyController {
         description: data.description,
         price: data.price,
         area: data.area,
-        status: data.status as ImovelStatus,
+        status: data.status as PropertyStatus,
         user: {
           connect: { id: data.userId },
         },

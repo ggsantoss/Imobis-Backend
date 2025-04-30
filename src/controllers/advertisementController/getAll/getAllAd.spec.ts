@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
 import { GetAllAdController } from './getAllAdController';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 
 jest.mock('../../../repository/advertisementRepository');
 
@@ -22,15 +22,15 @@ describe('GET /ads - Get All Ads', () => {
     {
       id: 1,
       userId: 2,
-      title: 'Apartamento legal',
-      description: 'Descrição do anúncio',
+      title: 'Nice Apartment',
+      description: 'Ad description',
       price: 1200.0,
     },
     {
       id: 2,
       userId: 3,
-      title: 'Casa maravilhosa',
-      description: 'Descrição do anúncio',
+      title: 'Beautiful House',
+      description: 'Ad description',
       price: 1500.0,
     },
   ];
@@ -42,11 +42,11 @@ describe('GET /ads - Get All Ads', () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().error).toBe('Invalid page or limit');
+    expect(response.json().error).toBe('Invalid page or limit.');
   });
 
   it('should return 500 if there is a server error', async () => {
-    (AnuncioRepository.getAllAnuncios as jest.Mock).mockRejectedValue(
+    (AdRepository.getAllAds as jest.Mock).mockRejectedValue(
       new Error('Database error'),
     );
 
@@ -62,8 +62,8 @@ describe('GET /ads - Get All Ads', () => {
   });
 
   it('should return ads with pagination', async () => {
-    (AnuncioRepository.getAllAnuncios as jest.Mock).mockResolvedValue({
-      anuncios: fakeAds,
+    (AdRepository.getAllAds as jest.Mock).mockResolvedValue({
+      ads: fakeAds,
       total: 2,
       totalPages: 1,
     });
@@ -87,24 +87,24 @@ describe('GET /ads - Get All Ads', () => {
     const filters = {
       page: '1',
       limit: '10',
-      tipoAnuncio: 'venda',
-      tipoImovel: 'apartamento',
+      adType: 'sale',
+      propertyType: 'apartment',
       city: 'São Paulo',
       minPrice: '1000',
       maxPrice: '2000',
       userId: '2',
-      imovelId: '1',
+      propertyId: '1',
     };
 
-    (AnuncioRepository.getAllAnuncios as jest.Mock).mockResolvedValue({
-      anuncios: fakeAds,
+    (AdRepository.getAllAds as jest.Mock).mockResolvedValue({
+      ads: fakeAds,
       total: 2,
       totalPages: 1,
     });
 
     const response = await fastify.inject({
       method: 'GET',
-      url: `/ads?page=${filters.page}&limit=${filters.limit}&tipoAnuncio=${filters.tipoAnuncio}&tipoImovel=${filters.tipoImovel}&city=${filters.city}&minPrice=${filters.minPrice}&maxPrice=${filters.maxPrice}&userId=${filters.userId}&imovelId=${filters.imovelId}`,
+      url: `/ads?page=${filters.page}&limit=${filters.limit}&adType=${filters.adType}&propertyType=${filters.propertyType}&city=${filters.city}&minPrice=${filters.minPrice}&maxPrice=${filters.maxPrice}&userId=${filters.userId}&propertyId=${filters.propertyId}`,
     });
 
     expect(response.statusCode).toBe(200);

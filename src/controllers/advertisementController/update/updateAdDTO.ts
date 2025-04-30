@@ -1,11 +1,11 @@
 import { AdVisibility } from '@prisma/client';
 
-export interface updateAdRequestDTO {
+export interface UpdateAdRequestDTO {
   title?: string;
   description?: string;
-  tipoAnuncio?: 'ALUGUEL' | 'COMPRA';
-  imovelId?: number;
+  adType?: 'RENT' | 'SALE';
+  propertyId?: number;
   userId?: number;
   price?: number;
-  status?: AdVisibility;
+  visibility?: AdVisibility;
 }

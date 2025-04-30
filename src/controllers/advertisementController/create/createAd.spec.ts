@@ -4,7 +4,7 @@ import request from 'supertest';
 import { CreateAdController } from './createAdController';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import { UserRepository } from '../../../repository/userRepository';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 
 jest.mock('../../../repository/propertyRepository');
 jest.mock('../../../repository/userRepository');
@@ -23,12 +23,12 @@ afterAll(async () => {
 });
 
 const validPayload = {
-  imovelId: 1,
+  propertyId: 1,
   userId: 1,
-  title: 'Apartamento legal',
+  title: 'Nice Apartment',
   visibility: 'VISIBLE',
-  description: 'Um belo apartamento com 3 quartos e 2 banheiros.',
-  tipoAnuncio: 'ALUGUEL',
+  description: 'A beautiful apartment with 3 bedrooms and 2 bathrooms.',
+  adType: 'RENT',
   price: 1200.0,
 };
 
@@ -37,10 +37,10 @@ describe('POST /ad/create - Create Advertisement', () => {
     const response = await request(fastify.server).post('/ad/create').send({});
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('"imovelId" is required');
+    expect(response.body.error).toBe('"propertyId" is required');
   });
 
-  it('should return 400 if imovel does not exist', async () => {
+  it('should return 400 if property does not exist', async () => {
     (PropertyRepository.findById as jest.Mock).mockResolvedValue(null);
 
     const response = await request(fastify.server)
@@ -66,7 +66,7 @@ describe('POST /ad/create - Create Advertisement', () => {
   it('should return 201 and the created ad if successful', async () => {
     (PropertyRepository.findById as jest.Mock).mockResolvedValue(true);
     (UserRepository.findById as jest.Mock).mockResolvedValue(true);
-    (AnuncioRepository.create as jest.Mock).mockResolvedValue({
+    (AdRepository.create as jest.Mock).mockResolvedValue({
       id: 1,
       ...validPayload,
     });

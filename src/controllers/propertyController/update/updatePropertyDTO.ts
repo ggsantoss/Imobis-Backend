@@ -1,4 +1,4 @@
-import { ImovelStatus } from '@prisma/client';
+import { PropertyStatus } from '@prisma/client';
 
 export interface updatePropertyRequestDTO {
   title?: string;
@@ -6,5 +6,5 @@ export interface updatePropertyRequestDTO {
   price?: number;
   imovelId?: number;
   userId?: number;
-  status?: ImovelStatus;
+  status?: PropertyStatus;
 }

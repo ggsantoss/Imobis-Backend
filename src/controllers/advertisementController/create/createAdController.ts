@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
 import { createAdDTO } from './createAdDTO';
 import { UserRepository } from '../../../repository/userRepository';
@@ -11,12 +11,12 @@ import { auditLogMiddleware } from '../../../middleware/auditLog';
 export class CreateAdController {
   static async createAd(req: FastifyRequest, reply: FastifyReply) {
     const adSchema = Joi.object({
-      imovelId: Joi.number().integer().min(1).required(),
+      propertyId: Joi.number().integer().min(1).required(),
       userId: Joi.number().integer().min(1).required(),
       title: Joi.string().min(3).required(),
-      visibility: Joi.string().valid(...Object.values(AdVisibility)),
+      visibility: Joi.string().valid(...Object.values(AdVisibility)).required(),
       description: Joi.string().min(10).required(),
-      tipoAnuncio: Joi.string().valid('ALUGUEL', 'COMPRA').required(),
+      adType: Joi.string().valid('RENT', 'SALE').required(),
       price: Joi.number().optional(),
     });
 
@@ -29,7 +29,7 @@ export class CreateAdController {
 
       const data: createAdDTO = value;
 
-      const imovelExists = await PropertyRepository.findById(data.imovelId);
+      const imovelExists = await PropertyRepository.findById(data.propertyId);
       if (!imovelExists) {
         return reply.status(400).send({ error: 'Property not found' });
       }
@@ -41,13 +41,13 @@ export class CreateAdController {
 
       const visibility = data.visibility as AdVisibility;
 
-      const newAd = await AnuncioRepository.create({
-        imovel: { connect: { id: data.imovelId } },
+      const newAd = await AdRepository.create({
+        property: { connect: { id: data.propertyId } },
         user: { connect: { id: data.userId } },
         title: data.title,
         visibility,
         description: data.description,
-        tipoAnuncio: data.tipoAnuncio,
+        adType: data.adType,
         price: data.price,
       });
 

@@ -1,6 +1,6 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import { SoftDeleteController } from './softDeleteController';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { AdVisibility } from '@prisma/client';
 
 jest.mock('../../../repository/advertisementRepository');
@@ -47,7 +47,7 @@ describe('DELETE /ads/:id - Soft Delete Advertisement', () => {
   });
 
   it('should return 404 if ad is not found', async () => {
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(null);
+    (AdRepository.findById as jest.Mock).mockResolvedValue(null);
 
     const response = await fastify.inject({
       method: 'DELETE',
@@ -59,8 +59,8 @@ describe('DELETE /ads/:id - Soft Delete Advertisement', () => {
   });
 
   it('should return 200 and soft delete ad if found', async () => {
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(fakeAd);
-    (AnuncioRepository.changeVisibility as jest.Mock).mockResolvedValue(
+    (AdRepository.findById as jest.Mock).mockResolvedValue(fakeAd);
+    (AdRepository.changeVisibility as jest.Mock).mockResolvedValue(
       updatedAd,
     );
 
@@ -75,7 +75,7 @@ describe('DELETE /ads/:id - Soft Delete Advertisement', () => {
   });
 
   it('should return 500 on unexpected error', async () => {
-    (AnuncioRepository.findById as jest.Mock).mockRejectedValue(
+    (AdRepository.findById as jest.Mock).mockRejectedValue(
       new Error('DB error'),
     );
 

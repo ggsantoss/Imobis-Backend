@@ -3,7 +3,7 @@ import { createPropertyController } from './createProperyController';
 import { UserRepository } from '../../../repository/userRepository';
 import { AddressRepository } from '../../../repository/adressRepository';
 import { PropertyRepository } from '../../../repository/propertyRepository';
-import { ImovelStatus } from '@prisma/client';
+import { PropertyStatus } from '@prisma/client';
 
 jest.mock('../../../repository/userRepository');
 jest.mock('../../../repository/adressRepository');
@@ -36,7 +36,7 @@ describe('POST /properties - Create Property', () => {
     zipCode: '12345-000',
     country: 'Brazil',
     area: 120,
-    status: ImovelStatus.DISPONIVEL,
+    status: PropertyStatus.AVAILABLE,
     userId: 1,
     images: [
       'https://example.com/image1.jpg',

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { getCache, setCache } from '../../../utils/cache';
 import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
@@ -18,7 +18,7 @@ export class GetAdByIdController {
       const cached = await getCache(cacheKey);
       if (cached) return reply.status(200).send({ data: cached });
 
-      const getAd = await AnuncioRepository.findById(advertisementId);
+      const getAd = await AdRepository.findById(advertisementId);
 
       if (getAd) {
         await setCache(cacheKey, getAd, 300);

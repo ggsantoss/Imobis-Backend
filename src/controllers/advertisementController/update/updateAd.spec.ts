@@ -1,6 +1,6 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import { UpdateAdController } from './updateAdController';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { AdVisibility } from '@prisma/client';
 
 jest.mock('../../../repository/advertisementRepository');
@@ -26,14 +26,14 @@ describe('PUT /ads/:id - Update Advertisement', () => {
     id: 1,
     title: 'Updated Title',
     description: 'Updated description',
-    tipoAnuncio: 'ALUGUEL',
-    imovelId: 10,
+    adType: 'RENT',
+    propertyId: 10,
     userId: 5,
     price: 1234,
-    status: AdVisibility.VISIBLE,
+    visibility: AdVisibility.VISIBLE,
   };
 
-  it('should return 400 for invalid advertisement ID', async () => {
+  it('should return 400 for invalid ad ID', async () => {
     const response = await fastify.inject({
       method: 'PUT',
       url: '/ads/abc',
@@ -41,7 +41,7 @@ describe('PUT /ads/:id - Update Advertisement', () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().error).toBe('Invalid advertisement ID');
+    expect(response.json().error).toBe('Invalid ad ID');
   });
 
   it('should return 400 for invalid payload', async () => {
@@ -54,10 +54,11 @@ describe('PUT /ads/:id - Update Advertisement', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    expect(response.json().error).toMatch(/at least/);
   });
 
-  it('should return 404 if advertisement is not found', async () => {
-    (AnuncioRepository.update as jest.Mock).mockResolvedValue(null);
+  it('should return 404 if ad is not found', async () => {
+    (AdRepository.update as jest.Mock).mockResolvedValue(null);
 
     const response = await fastify.inject({
       method: 'PUT',
@@ -68,11 +69,11 @@ describe('PUT /ads/:id - Update Advertisement', () => {
     });
 
     expect(response.statusCode).toBe(404);
-    expect(response.json().error).toBe('Advertisement not found');
+    expect(response.json().error).toBe('Ad not found');
   });
 
-  it('should return 200 and updated advertisement', async () => {
-    (AnuncioRepository.update as jest.Mock).mockResolvedValue(updatedAd);
+  it('should return 200 and the updated ad', async () => {
+    (AdRepository.update as jest.Mock).mockResolvedValue(updatedAd);
 
     const response = await fastify.inject({
       method: 'PUT',
@@ -80,11 +81,11 @@ describe('PUT /ads/:id - Update Advertisement', () => {
       payload: {
         title: 'Updated Title',
         description: 'Updated description',
-        tipoAnuncio: 'ALUGUEL',
-        imovelId: 10,
+        adType: 'RENT',
+        propertyId: 10,
         userId: 5,
         price: 1234,
-        status: AdVisibility.VISIBLE,
+        visibility: AdVisibility.VISIBLE,
       },
     });
 
@@ -93,7 +94,7 @@ describe('PUT /ads/:id - Update Advertisement', () => {
   });
 
   it('should return 500 if an unexpected error occurs', async () => {
-    (AnuncioRepository.update as jest.Mock).mockRejectedValue(
+    (AdRepository.update as jest.Mock).mockRejectedValue(
       new Error('Unexpected'),
     );
 

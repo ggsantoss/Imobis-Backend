@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { setAuditData } from '../../../helpers/auditHelper';
@@ -24,7 +24,7 @@ export class DeleteAdController {
 
       const { id } = value as { id: number };
 
-      const deletedProperty = await AnuncioRepository.delete(id);
+      const deletedProperty = await AdRepository.delete(id);
 
       if (!deletedProperty) {
         return reply.status(404).send({ error: 'Property not found' });

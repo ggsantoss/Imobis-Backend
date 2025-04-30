@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { AdVisibility } from '@prisma/client';
 import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
@@ -22,12 +22,12 @@ export class SoftDeleteController {
     }
 
     try {
-      const ad = await AnuncioRepository.findById(id);
+      const ad = await AdRepository.findById(id);
       if (!ad) {
         return reply.status(404).send({ error: 'Ad not found' });
       }
 
-      const updatedAd = await AnuncioRepository.changeVisibility(
+      const updatedAd = await AdRepository.changeVisibility(
         id,
         AdVisibility.INVISIBLE,
       );

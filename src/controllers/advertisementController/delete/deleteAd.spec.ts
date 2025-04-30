@@ -1,7 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import request from 'supertest';
 import { DeleteAdController } from './deleteAdController';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 jest.mock('../../../repository/advertisementRepository');
@@ -27,7 +27,7 @@ describe('DELETE /ad/:id - Delete Advertisement', () => {
   });
 
   it('should return 404 if advertisement not found', async () => {
-    (AnuncioRepository.delete as jest.Mock).mockResolvedValue(null);
+    (AdRepository.delete as jest.Mock).mockResolvedValue(null);
 
     const response = await request(fastify.server).delete('/ad/999');
 
@@ -36,7 +36,7 @@ describe('DELETE /ad/:id - Delete Advertisement', () => {
   });
 
   it('should return 200 on successful deletion', async () => {
-    (AnuncioRepository.delete as jest.Mock).mockResolvedValue({
+    (AdRepository.delete as jest.Mock).mockResolvedValue({
       id: 1,
       title: 'Teste',
     });
@@ -48,7 +48,7 @@ describe('DELETE /ad/:id - Delete Advertisement', () => {
   });
 
   it('should return 500 on unexpected error', async () => {
-    (AnuncioRepository.delete as jest.Mock).mockImplementation(() => {
+    (AdRepository.delete as jest.Mock).mockImplementation(() => {
       throw new Error('Unexpected error');
     });
 

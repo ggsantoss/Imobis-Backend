@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import Joi from 'joi';
-import { updateAdRequestDTO } from './updateAdDTO';
+import { UpdateAdRequestDTO } from './updateAdDTO';
 import { AdVisibility } from '@prisma/client';
 import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
@@ -10,42 +10,40 @@ export class UpdateAdController {
   static async updateAd(req: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = req.params as { id: string };
-      const advertisementId = parseInt(id, 10);
+      const adId = parseInt(id, 10);
 
-      if (isNaN(advertisementId)) {
-        return reply.status(400).send({ error: 'Invalid advertisement ID' });
+      if (isNaN(adId)) {
+        return reply.status(400).send({ error: 'Invalid ad ID' });
       }
 
-      const anuncioSchema = Joi.object({
+      const adSchema = Joi.object({
         title: Joi.string().min(3).optional(),
         description: Joi.string().min(5).optional(),
-        tipoAnuncio: Joi.string().valid('ALUGUEL', 'COMPRA').optional(),
-        imovelId: Joi.number().optional(),
+        adType: Joi.string().valid('RENT', 'SALE').optional(),
+        propertyId: Joi.number().optional(),
         userId: Joi.number().optional(),
         price: Joi.number().optional(),
-        status: Joi.string()
+        visibility: Joi.string()
           .valid(...Object.values(AdVisibility))
           .optional(),
       });
 
-      const { error, value } = anuncioSchema.validate(req.body);
+      const { error, value } = adSchema.validate(req.body);
 
       if (error) {
         return reply.status(400).send({ error: error.details[0].message });
       }
 
-      const data: updateAdRequestDTO = value;
+      const data: UpdateAdRequestDTO = value;
 
-      console.log('Updated data:', data);
-
-      const updatedAd = await AnuncioRepository.update(advertisementId, data);
+      const updatedAd = await AdRepository.update(adId, data);
 
       if (!updatedAd) {
-        return reply.status(404).send({ error: 'Advertisement not found' });
+        return reply.status(404).send({ error: 'Ad not found' });
       }
 
-      setAuditData(req, advertisementId, 'UPDATE_AD', true, {
-        advertisementId: advertisementId,
+      setAuditData(req, adId, 'UPDATE_AD', true, {
+        adId,
         userId: data.userId,
       });
 
