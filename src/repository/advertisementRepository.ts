@@ -1,59 +1,59 @@
-import { AdVisibility, Prisma, TipoAnuncio } from '@prisma/client';
+import { AdVisibility, Prisma, AdType } from '@prisma/client';
 import { prisma } from '../db/prisma';
 
-export class AnuncioRepository {
-  public static async create(data: Prisma.AnuncioCreateInput) {
-    const newAnuncio = await prisma.anuncio.create({
+export class AdRepository {
+  public static async create(data: Prisma.AdCreateInput) {
+    const newAd = await prisma.ad.create({
       data,
     });
-    return newAnuncio;
+    return newAd;
   }
 
-  public static async getAllAnuncios(filters: {
+  public static async getAllAds(filters: {
     page?: number;
     limit?: number;
-    tipoAnuncio?: TipoAnuncio;
-    tipoImovel?: string;
-    finalidade?: string;
+    adType?: AdType;
+    propertyType?: string;
+    purpose?: string;
     city?: string;
     minPrice?: number;
     maxPrice?: number;
     userId?: number;
-    imovelId?: number;
+    propertyId?: number;
   }) {
     const {
       page = 1,
       limit = 10,
-      tipoAnuncio,
-      tipoImovel,
-      finalidade,
+      adType,
+      propertyType,
+      purpose,
       city,
       minPrice,
       maxPrice,
       userId,
-      imovelId,
+      propertyId,
     } = filters;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.AnuncioWhereInput = {
-      tipoAnuncio,
-      ...(tipoImovel ? { tipoImovel } : {}),
+    const where: Prisma.AdWhereInput = {
+      adType,
+      ...(propertyType ? { propertyType } : {}),
       ...(minPrice || maxPrice
         ? { price: { gte: minPrice, lte: maxPrice } }
         : {}),
       ...(userId ? { userId } : {}),
-      ...(imovelId ? { imovelId } : {}),
-      imovel: {
+      ...(propertyId ? { propertyId } : {}),
+      property: {
         ...(city ? { address: { is: { city } } } : {}),
       },
     };
 
-    const anuncios = await prisma.anuncio.findMany({
+    const ads = await prisma.ad.findMany({
       where,
       take: limit,
       skip,
       include: {
-        imovel: {
+        property: {
           include: {
             address: true,
             user: true,
@@ -62,59 +62,59 @@ export class AnuncioRepository {
       },
     });
 
-    const total = await prisma.anuncio.count({ where });
+    const total = await prisma.ad.count({ where });
 
     return {
-      anuncios,
+      ads,
       total,
       totalPages: Math.ceil(total / limit),
     };
   }
 
   public static async findById(id: number) {
-    const anuncio = await prisma.anuncio.findUnique({
+    const ad = await prisma.ad.findUnique({
       where: {
         id,
       },
       include: {
-        imovel: {
+        property: {
           include: {
             user: true,
           },
         },
       },
     });
-    return anuncio;
+    return ad;
   }
 
-  public static async update(id: number, data: Prisma.AnuncioUpdateInput) {
-    const updatedAnuncio = await prisma.anuncio.update({
+  public static async update(id: number, data: Prisma.AdUpdateInput) {
+    const updatedAd = await prisma.ad.update({
       where: {
         id,
       },
       data,
     });
-    return updatedAnuncio;
+    return updatedAd;
   }
 
   public static async delete(id: number) {
-    const deletedAnuncio = await prisma.anuncio.delete({
+    const deletedAd = await prisma.ad.delete({
       where: {
         id,
       },
     });
-    return deletedAnuncio;
+    return deletedAd;
   }
 
   public static async changeVisibility(id: number, visibility: AdVisibility) {
-    return prisma.anuncio.update({
+    return prisma.ad.update({
       where: { id },
       data: { visibility },
     });
   }
 
   public static async getAdsByUserId(userId: number) {
-    return prisma.anuncio.findMany({
+    return prisma.ad.findMany({
       where: {
         userId: userId,
       },

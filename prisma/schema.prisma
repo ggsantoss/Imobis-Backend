@@ -8,125 +8,149 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
-  email      String     @unique
-  password   String
-  name       String
-  phone      String?
-  address    String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  imoveis    Imovel[]
-  payments   Payment[]
-  anuncios   Anuncio[]
-  credits    Credits[]
-  auditLogs AuditLogs[]
+  id           Int         @id @default(autoincrement())
+  email        String      @unique
+  password     String
+  name         String
+  phone        String?
+  cpf          String
+  addressId    Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  address      UserAddress @relation(fields: [addressId], references: [id])
+  properties   Property[]
+  payments     Payment[]
+  ads          Ad[]
+  credits      Credits[]
+  auditLogs    AuditLog[]
 }
 
-model Imovel {
-  id          Int          @id @default(autoincrement())
+model UserAddress {
+  id        Int      @id @default(autoincrement())
+  street    String
+  state     String
+  city      String
+  zipCode   String
+  country   String
+  createdAt DateTime @default(now())
+
+  users     User[]
+}
+
+model Property {
+  id          Int         @id @default(autoincrement())
   title       String
   description String
   price       Float
   area        Float
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   userId      Int
-  user        User         @relation(fields: [userId], references: [id])
-  status      ImovelStatus
-  images      Imagem[]
-  anuncios    Anuncio[]
-  payments    Payment[]
-
+  status      PropertyStatus
   addressId   Int
-  address     Address      @relation(fields: [addressId], references: [id])
+
+  user        User        @relation(fields: [userId], references: [id])
+  address     Address     @relation(fields: [addressId], references: [id])
+  images      Image[]
+  ad          Ad[]
+  payments    Payment[]
 }
 
 model Address {
-  id        Int      @id @default(autoincrement())
-  street    String
-  city      String
-  state     String
-  zipCode   String?
-  country   String
-  createdAt DateTime @default(now())
+  id         Int         @id @default(autoincrement())
+  street     String
+  city       String
+  state      String
+  zipCode    String?
+  country    String
+  createdAt  DateTime    @default(now())
 
-  imoveis   Imovel[]
+  properties Property[]
 }
 
-model Imagem {
-  id        Int      @id @default(autoincrement())
-  url       String
-  imovelId  Int
-  imovel    Imovel   @relation(fields: [imovelId], references: [id])
-  createdAt DateTime @default(now())
+model Image {
+  id         Int        @id @default(autoincrement())
+  url        String
+  propertyId Int
+  createdAt  DateTime   @default(now())
+
+  property   Property   @relation(fields: [propertyId], references: [id])
 }
 
 model Payment {
-  id               Int      @id @default(autoincrement())
-  paymentId        String?  @unique
+  id               Int       @id @default(autoincrement())
+  paymentId        String?   @unique
   amount           Float
   status           PaymentStatus
-
-  anuncioId        Int?
-  anuncio          Anuncio?  @relation(fields: [anuncioId], references: [id])
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  externalRef      String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   userId           Int
-  user             User     @relation(fields: [userId], references: [id])
-
-  imovelId         Int?
-  imovel           Imovel?  @relation(fields: [imovelId], references: [id])
-
+  propertyId       Int?
+  adId             Int?
   creditsId        Int?
-  credits          Credits? @relation(fields: [creditsId], references: [id])
 
-  externalReference String? @unique
-
+  user             User      @relation(fields: [userId], references: [id])
+  property         Property? @relation(fields: [propertyId], references: [id])
+  ad               Ad?       @relation(fields: [adId], references: [id])
+  credits          Credits?  @relation(fields: [creditsId], references: [id])
 }
 
-model Anuncio {
+model Ad {
   id          Int           @id @default(autoincrement())
   title       String
   description String
-  visibility  AdVisibility @default(VISIBLE)
-  tipoAnuncio TipoAnuncio
-  imovel      Imovel        @relation(fields: [imovelId], references: [id])
-  imovelId    Int
-  user        User          @relation(fields: [userId], references: [id])
-  userId      Int
+  visibility  AdVisibility  @default(VISIBLE)
+  adType      AdType
   price       Float?
-  pagamentos  Payment[]
+
+  userId      Int
+  propertyId  Int
+
+  user        User          @relation(fields: [userId], references: [id])
+  property    Property      @relation(fields: [propertyId], references: [id])
+  payments    Payment[]
 }
 
 model Credits {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @unique
-  balance      Float    @default(0.0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         Int        @id @default(autoincrement())
+  userId     Int        @unique
+  balance    Float      @default(0.0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
-  user         User     @relation(fields: [userId], references: [id])
-
-  payments     Payment[]
+  user       User       @relation(fields: [userId], references: [id])
+  payments   Payment[]
 }
 
-model Blacklist {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  createdAt DateTime @default(now())
+model BlacklistToken {
+  id         Int       @id @default(autoincrement())
+  token      String    @unique
+  createdAt  DateTime  @default(now())
 }
 
-enum TipoAnuncio {
-  ALUGUEL
-  COMPRA
+model AuditLog {
+  id          Int         @id @default(autoincrement())
+  actorId     Int?
+  targetId    Int?
+  targetType  String?
+  action      ActionType
+  metadata    Json
+  createdAt   DateTime    @default(now())
+
+  actor       User?       @relation(fields: [actorId], references: [id])
 }
 
-enum ImovelStatus {
-  DISPONIVEL
-  VENDIDO
-  ALUGADO
+enum AdType {
+  RENT
+  SALE
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  RENTED
 }
 
 enum PaymentStatus {
@@ -138,19 +162,6 @@ enum PaymentStatus {
 enum AdVisibility {
   VISIBLE
   INVISIBLE
-}
-
-model AuditLogs {
-  id        Int        @id @default(autoincrement())
-  actor     User?       @relation(fields: [actorId], references: [id])
-  actorId   Int?
-
-  targetId   Int?
-  targetType String?
-
-  action    ActionType
-  metadata  Json
-  createdAt DateTime   @default(now())
 }
 
 enum ActionType {

@@ -22,7 +22,7 @@ export class AuditLogRepository {
         logData.actor = { connect: { id: data.actorId } };
       }
 
-      return await prisma.auditLogs.create({
+      return await prisma.auditLog.create({
         data: logData,
       });
     } catch (error) {
