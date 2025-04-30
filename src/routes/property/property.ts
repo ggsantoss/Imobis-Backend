@@ -19,37 +19,35 @@ export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas públicas
   fastify.get(
     '/properties',
-    { schema: getByUserIdSchema },
     GetAllPropertiesController.getAllProperties,
   );
   fastify.get(
     '/property/:id',
-    { schema: getByIdSchema },
     GetPropertyByIdController.getPropertyById,
   );
 
   // Rotas privadas
   fastify.post(
     '/property',
-    { schema: createSchema, preHandler: [authMiddleware] },
+    { preHandler: [authMiddleware] },
     createPropertyController.create,
   );
 
   fastify.delete(
     '/property/:id',
-    { schema: deleteSchema, preHandler: [authMiddleware] },
+    { preHandler: [authMiddleware] },
     DeletePropertyController.deleteProperty,
   );
 
   fastify.patch(
     '/property/:id',
-    { schema: updateSchema, preHandler: [authMiddleware] },
+    { preHandler: [authMiddleware] },
     UpdatePropertyController.update,
   );
 
   fastify.get(
     '/user/properties/:id',
-    { schema: getAllSchema, preHandler: [authMiddleware] },
+    { preHandler: [authMiddleware] },
     GetPropertyByUserId.getPropertyByUserId,
   );
 }
