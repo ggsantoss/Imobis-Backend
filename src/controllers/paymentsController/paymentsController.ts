@@ -46,17 +46,17 @@ export class PaymentController {
 
       const externalReference = `order_${Date.now()}_${data.userId}`;
 
-      await PaymentRepository.create({
-        amount: data.amount,
-        status: 'PENDING',
-        anuncio: {
-          connect: { id: data.anuncioId },
-        },
-        user: {
-          connect: { id: data.userId },
-        },
-        externalReference: externalReference,
-      });
+      // await PaymentRepository.create({
+      //   amount: data.amount,
+      //   status: 'PENDING',
+      //   ad: {
+      //     connect: { id: data.anuncioId },
+      //   },
+      //   user: {
+      //     connect: { id: data.userId },
+      //   },
+      //   externalReference: externalReference,
+      // });
 
       console.log('Preference created successfully:', response);
 
