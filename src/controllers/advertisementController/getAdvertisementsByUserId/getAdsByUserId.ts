@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import Joi from 'joi';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import { getCache, setCache } from '../../../utils/cache';
 import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
@@ -23,7 +23,7 @@ export class GetAdsByUserId {
       const cached = await getCache(cacheKey);
       if (cached) return reply.status(200).send(cached);
 
-      const advertisement = await AnuncioRepository.getAdsByUserId(userId);
+      const advertisement = await AdRepository.getAdsByUserId(userId);
 
       if (!advertisement || advertisement.length === 0) {
         return reply

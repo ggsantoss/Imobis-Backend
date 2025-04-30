@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import Joi from 'joi';
 import { updatePropertyRequestDTO } from './updatePropertyDTO';
-import { ImovelStatus } from '@prisma/client';
+import { PropertyStatus } from '@prisma/client';
 import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
 
@@ -18,7 +18,7 @@ export class UpdatePropertyController {
       imovelId: Joi.number().optional(),
       userId: Joi.number().optional(),
       status: Joi.string()
-        .valid(...Object.values(ImovelStatus))
+        .valid(...Object.values(PropertyStatus))
         .optional(),
     });
 

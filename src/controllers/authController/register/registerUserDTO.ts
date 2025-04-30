@@ -3,5 +3,10 @@ export interface registerUserRequestDTO {
   password: string;
   name: string;
   phone?: string;
-  address?: string;
+  cpf: string;
+  street: string;
+  city: string;
+  state: string,
+  zipCode: string,
+  country: string,
 }

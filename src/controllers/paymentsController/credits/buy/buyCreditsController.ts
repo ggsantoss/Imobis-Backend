@@ -73,7 +73,7 @@ export class BuyCreditsController {
         user: {
           connect: { id: data.userId },
         },
-        externalReference: external_reference,
+        externalRef: external_reference,
       });
 
       reply.send({ status: 'success', initPoint });

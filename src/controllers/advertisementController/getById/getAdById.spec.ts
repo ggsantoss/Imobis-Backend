@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
 import { GetAdByIdController } from './getAdByIdController';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import * as cache from '../../../utils/cache';
 
 jest.mock('../../../repository/advertisementRepository');
@@ -43,7 +43,7 @@ describe('GET /ads/:id - Get Advertisement by ID', () => {
   });
 
   it('should return 404 if advertisement is not found', async () => {
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(null);
+    (AdRepository.findById as jest.Mock).mockResolvedValue(null);
 
     const response = await fastify.inject({
       method: 'GET',
@@ -56,7 +56,7 @@ describe('GET /ads/:id - Get Advertisement by ID', () => {
 
   it('should return advertisement and set cache if not cached', async () => {
     (cache.getCache as jest.Mock).mockResolvedValue(null);
-    (AnuncioRepository.findById as jest.Mock).mockResolvedValue(fakeAd);
+    (AdRepository.findById as jest.Mock).mockResolvedValue(fakeAd);
 
     const setCacheMock = jest.fn().mockResolvedValue(undefined);
     (cache.setCache as jest.Mock) = setCacheMock;

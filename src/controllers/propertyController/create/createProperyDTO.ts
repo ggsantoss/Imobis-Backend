@@ -1,7 +1,7 @@
 export enum PropertyStatus {
-  DISPONIVEL = 'DISPONIVEL',
-  VENDIDO = 'VENDIDO',
-  ALUGADO = 'ALUGADO',
+  DISPONIVEL = 'AVAILABLE',
+  VENDIDO = 'SOLD',
+  ALUGADO = 'RENTED',
 }
 
 export interface createPropertyRequestDTO {

@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
 import { GetAdsByUserId } from './getAdsByUserId';
-import { AnuncioRepository } from '../../../repository/advertisementRepository';
+import { AdRepository } from '../../../repository/advertisementRepository';
 import * as cache from '../../../utils/cache';
 
 jest.mock('../../../repository/advertisementRepository');
@@ -41,7 +41,7 @@ describe('GET /ads/user/:id - Get Ads by User ID', () => {
   });
 
   it('should return 404 if user has no ads', async () => {
-    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue([]);
+    (AdRepository.getAdsByUserId as jest.Mock).mockResolvedValue([]);
 
     const response = await fastify.inject({
       method: 'GET',
@@ -57,7 +57,7 @@ describe('GET /ads/user/:id - Get Ads by User ID', () => {
   it('should return ads and set cache if not cached', async () => {
     (cache.getCache as jest.Mock).mockResolvedValue(null);
 
-    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
+    (AdRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
 
     const setCacheMock = jest.fn().mockResolvedValue(undefined);
     (cache.setCache as jest.Mock) = setCacheMock;
@@ -74,7 +74,7 @@ describe('GET /ads/user/:id - Get Ads by User ID', () => {
 
   it('should return ads and set cache if not cached', async () => {
     (cache.getCache as jest.Mock).mockResolvedValue(null);
-    (AnuncioRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
+    (AdRepository.getAdsByUserId as jest.Mock).mockResolvedValue(fakeAds);
     (cache.setCache as jest.Mock).mockResolvedValue(undefined);
 
     const response = await fastify.inject({

@@ -2,10 +2,10 @@ export const registerSchema = {
   tags: ['Authentication'],
   summary: 'Register a new user',
   description:
-    'Registers a new user by validating the user input (email, password, name, phone, and address), hashing the password, and saving the user to the database.',
+    'Registers a new user by validating the user input (email, password, name, cpf, phone, and address data), hashing the password, and saving the user to the database.',
   body: {
     type: 'object',
-    required: ['email', 'password', 'name'],
+    required: ['email', 'password', 'name', 'cpf', 'street', 'city', 'state', 'zipCode', 'country'],
     properties: {
       email: {
         type: 'string',
@@ -30,10 +30,36 @@ export const registerSchema = {
         description: "User's phone number",
         default: '123-456-7890',
       },
-      address: {
+      cpf: {
         type: 'string',
-        description: "User's address",
-        default: '123 Main St, City, Country',
+        pattern: '^[0-9]{11}$',
+        description: "User's CPF (Brazilian identification number)",
+        default: '12345678900',
+      },
+      street: {
+        type: 'string',
+        description: "User's street address",
+        default: '123 Main St',
+      },
+      city: {
+        type: 'string',
+        description: "User's city",
+        default: 'City',
+      },
+      state: {
+        type: 'string',
+        description: "User's state",
+        default: 'State',
+      },
+      zipCode: {
+        type: 'string',
+        description: "User's postal code",
+        default: '12345',
+      },
+      country: {
+        type: 'string',
+        description: "User's country",
+        default: 'Country',
       },
     },
   },
@@ -58,9 +84,29 @@ export const registerSchema = {
           type: 'string',
           description: 'User phone number',
         },
-        address: {
+        cpf: {
           type: 'string',
-          description: 'User address',
+          description: 'User CPF',
+        },
+        street: {
+          type: 'string',
+          description: 'Street address',
+        },
+        city: {
+          type: 'string',
+          description: 'City',
+        },
+        state: {
+          type: 'string',
+          description: 'State',
+        },
+        zipCode: {
+          type: 'string',
+          description: 'Postal code',
+        },
+        country: {
+          type: 'string',
+          description: 'Country',
         },
       },
     },

@@ -1,9 +1,9 @@
 export interface createAdDTO {
-  imovelId: number;
+  propertyId: number;
   userId: number;
   title: string;
-  visibility: string;
+  visibility: 'VISIBLE' | 'INVISIBLE';
   description: string;
-  tipoAnuncio: 'ALUGUEL' | 'COMPRA';
+  adType: 'RENT' | 'SALE';
   price?: number;
 }

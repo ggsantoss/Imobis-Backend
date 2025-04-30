@@ -14,7 +14,7 @@ export class PaymentRepository {
     status: PaymentStatus,
   ) {
     const updatedPayment = await prisma.payment.update({
-      where: { externalReference: externalReference },
+      where: { externalRef: externalReference },
       data: {
         status: status,
       },
