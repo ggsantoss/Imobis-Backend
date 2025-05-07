@@ -1,5 +1,6 @@
 import { AdVisibility, Prisma, AdType } from '@prisma/client';
 import { prisma } from '../db/prisma';
+import { addMonths } from 'date-fns';
 
 export class AdRepository {
   public static async create(data: Prisma.AdCreateInput) {
@@ -26,7 +27,6 @@ export class AdRepository {
       limit = 10,
       adType,
       propertyType,
-      purpose,
       city,
       minPrice,
       maxPrice,
@@ -104,6 +104,64 @@ export class AdRepository {
       },
     });
     return deletedAd;
+  }
+
+  public static async updatePaidVisibility(
+    id: number,
+    paidVisibility: boolean,
+    expiresAt: Date | null,
+  ) {
+    try {
+      const data: Prisma.AdUpdateInput = {
+        paid_visible: paidVisibility,
+        paid_visibility_expires_at: expiresAt,
+      };
+
+      const updatedAd = await prisma.ad.update({
+        where: { id },
+        data,
+      });
+
+      return updatedAd;
+    } catch (error) {
+      console.error(
+        `Erro ao atualizar paid_visibility do anúncio ${id}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  public static async updateMonthsPaid(id: number, monthsPaid: number) {
+    try {
+      const ad = await prisma.ad.findUnique({ where: { id } });
+
+      if (!ad) {
+        throw new Error(`Ad with id ${id} not found`);
+      }
+
+      const currentDate =
+        ad.paid_visibility_expires_at &&
+        ad.paid_visibility_expires_at > new Date()
+          ? ad.paid_visibility_expires_at
+          : new Date();
+
+      const newExpirationDate = addMonths(currentDate, monthsPaid);
+
+      const updatedAd = await prisma.ad.update({
+        where: { id },
+        data: {
+          months_paid: ad.months_paid + monthsPaid,
+          paid_visible: true,
+          paid_visibility_expires_at: newExpirationDate,
+        },
+      });
+
+      return updatedAd;
+    } catch (error) {
+      console.error(`Erro ao atualizar months_paid do anúncio ${id}:`, error);
+      throw error;
+    }
   }
 
   public static async changeVisibility(id: number, visibility: AdVisibility) {

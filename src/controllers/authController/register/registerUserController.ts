@@ -13,7 +13,9 @@ export class registerUserController {
       email: Joi.string().email().required(),
       password: Joi.string().min(6).required(),
       name: Joi.string().min(3).required(),
-      cpf: Joi.string().pattern(/^\d{11}$/).required(),
+      cpf: Joi.string()
+        .pattern(/^\d{11}$/)
+        .required(),
       phone: Joi.string().optional(),
       street: Joi.string().required(),
       city: Joi.string().required(),
@@ -45,7 +47,7 @@ export class registerUserController {
         state: data.state,
         zipCode: data.zipCode,
         country: data.country,
-      })
+      });
       const newUser = await UserRepository.create({
         email: data.email,
         password: hashedPassword,
@@ -65,7 +67,7 @@ export class registerUserController {
 
       reply.status(201).send(newUser);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       reply.status(500).send({ error: 'Something went wrong' });
     }
   }
