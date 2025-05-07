@@ -8,6 +8,7 @@ import { paymentRoutes } from './routes/payment/payment';
 import { advertisementRoutes } from './routes/advertisement/advertisement';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
+import { scheduleExpirePaidVisibility } from './jobs/expiredPaidVisibility';
 
 export const buildApp = () => {
   const app = Fastify({
@@ -93,6 +94,8 @@ export const buildApp = () => {
   app.register(propertyRoutes);
   app.register(paymentRoutes);
   app.register(advertisementRoutes);
+
+  scheduleExpirePaidVisibility();
 
   return app;
 };

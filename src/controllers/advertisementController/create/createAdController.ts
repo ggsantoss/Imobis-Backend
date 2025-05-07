@@ -14,7 +14,9 @@ export class CreateAdController {
       propertyId: Joi.number().integer().min(1).required(),
       userId: Joi.number().integer().min(1).required(),
       title: Joi.string().min(3).required(),
-      visibility: Joi.string().valid(...Object.values(AdVisibility)).required(),
+      visibility: Joi.string()
+        .valid(...Object.values(AdVisibility))
+        .required(),
       description: Joi.string().min(10).required(),
       adType: Joi.string().valid('RENT', 'SALE').required(),
       price: Joi.number().optional(),
