@@ -22,7 +22,6 @@ model User {
   properties   Property[]
   payments     Payment[]
   ads          Ad[]
-  credits      Credits[]
   auditLogs    AuditLog[]
 }
 
@@ -89,12 +88,10 @@ model Payment {
   userId           Int
   propertyId       Int?
   adId             Int?
-  creditsId        Int?
 
   user             User      @relation(fields: [userId], references: [id])
   property         Property? @relation(fields: [propertyId], references: [id])
   ad               Ad?       @relation(fields: [adId], references: [id])
-  credits          Credits?  @relation(fields: [creditsId], references: [id])
 }
 
 model Ad {
@@ -102,6 +99,9 @@ model Ad {
   title       String
   description String
   visibility  AdVisibility  @default(VISIBLE)
+  paid_visible Boolean @default(false)
+  paid_visibility_expires_at DateTime?
+  months_paid Int @default(0)
   adType      AdType
   price       Float?
 
@@ -111,17 +111,6 @@ model Ad {
   user        User          @relation(fields: [userId], references: [id])
   property    Property      @relation(fields: [propertyId], references: [id])
   payments    Payment[]
-}
-
-model Credits {
-  id         Int        @id @default(autoincrement())
-  userId     Int        @unique
-  balance    Float      @default(0.0)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  user       User       @relation(fields: [userId], references: [id])
-  payments   Payment[]
 }
 
 model BlacklistToken {
