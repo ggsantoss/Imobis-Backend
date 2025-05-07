@@ -53,7 +53,7 @@ export class loginUserController {
 
       reply.status(200).send({ token });
     } catch (err) {
-      reply.status(500).send({ error: 'Something went wrong ' + err });
+      reply.status(500).send({ error: 'Something went wrong' });
     }
   }
 }
