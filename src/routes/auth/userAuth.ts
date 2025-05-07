@@ -26,10 +26,7 @@ export async function userRoutes(fastify: FastifyInstance) {
     '/auth/forgot-password',
     ForgotPasswordController.forgotPassword,
   );
-  fastify.patch(
-    '/auth/reset-password',
-    ResetPasswordController.resetPassword,
-  );
+  fastify.patch('/auth/reset-password', ResetPasswordController.resetPassword);
 
   fastify.post(
     '/auth/logout',

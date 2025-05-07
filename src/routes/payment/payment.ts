@@ -1,35 +1,27 @@
 import { FastifyInstance } from 'fastify';
-import { PaymentController } from '../../controllers/paymentsController/paymentsController';
-import { PaymentNotificationController } from '../../controllers/paymentsController/paymentNotificationController';
-import { BuyCreditsController } from '../../controllers/paymentsController/credits/buy/buyCreditsController';
-import { BuyCreditsNotification } from '../../controllers/paymentsController/credits/buy/buyCreditsNotification';
 import { authMiddleware } from '../../middleware/authMiddleware';
+import { BuyAdController } from '../../controllers/paymentsController/buyAdController';
+import { BuyAdNotificationController } from '../../controllers/paymentsController/buyAdNotificationController';
 import { verifyAdmin } from '../../middleware/verifyAdmin';
+import GetPaymentsInfo from '../../controllers/paymentsController/getPaymentInfo/getPaymentInfoController';
 
 export async function paymentRoutes(fastify: FastifyInstance) {
   // Pagamentos gerais
   fastify.post(
-    '/payments/new',
+    '/payments',
     { preHandler: authMiddleware },
-    PaymentController.newPayment,
+    BuyAdController.buy,
   );
 
   fastify.post(
     '/payments/notification',
-    { preHandler: [authMiddleware, verifyAdmin] },
-    PaymentNotificationController.handleNotification,
+    { preHandler: [] },
+    BuyAdNotificationController.handleNotification,
   );
 
-  // Compra de créditos
-  fastify.post(
-    '/payments/credits/buy',
-    { preHandler: authMiddleware },
-    BuyCreditsController.buy,
-  );
-
-  fastify.post(
-    '/payments/credits/notification',
+  fastify.get(
+    '/payments/:id',
     { preHandler: [authMiddleware, verifyAdmin] },
-    BuyCreditsNotification.creditsNotification,
+    GetPaymentsInfo.getPaymentsInfo,
   );
 }
