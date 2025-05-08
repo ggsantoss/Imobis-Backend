@@ -7,13 +7,7 @@ import { UpdatePropertyController } from '../../controllers/propertyController/u
 import { GetPropertyByUserId } from '../../controllers/propertyController/getByUserId/getPropertyByUserId';
 
 import { authMiddleware } from '../../middleware/authMiddleware';
-import { createSchema } from '../../schemas/swagger/property/createSchema';
-import { deleteSchema } from '../../schemas/swagger/property/deleteSchema';
-import { getAllSchema } from '../../schemas/swagger/property/getAllSchema';
-import { getByIdSchema } from '../../schemas/swagger/property/getByIdSchema';
-import { getByUserIdSchema } from '../../schemas/swagger/property/getByUserId';
-import { updateSchema } from '../../schemas/swagger/property/updateSchema';
-// import { updateSchema } from '../../schemas/swagger/property/updateSchema';
+import { upload } from '../../utils/imgManager';
 
 export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas públicas
@@ -23,7 +17,7 @@ export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas privadas
   fastify.post(
     '/property',
-    { preHandler: [authMiddleware] },
+    { preHandler: [authMiddleware, upload.array('image', 10)] },
     createPropertyController.create,
   );
 

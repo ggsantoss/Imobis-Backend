@@ -9,6 +9,7 @@ import { advertisementRoutes } from './routes/advertisement/advertisement';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import { scheduleExpirePaidVisibility } from './jobs/expiredPaidVisibility';
+import multipart from '@fastify/multipart';
 
 export const buildApp = () => {
   const app = Fastify({
@@ -48,6 +49,9 @@ export const buildApp = () => {
     },
     xFrameOptions: { action: 'deny' },
   });
+
+  app.register(multipart);
+  // app.register(fastifymulter.contentParser);
 
   app.register(fastifyCors, {
     origin: (origin, cb) => {

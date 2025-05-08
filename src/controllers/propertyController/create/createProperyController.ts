@@ -38,6 +38,18 @@ export class createPropertyController {
         return reply.status(400).send({ error: error.details[0].message });
       }
 
+      const files = req.files
+        ? Array.isArray(req.files)
+          ? req.files
+          : [req.files]
+        : [];
+
+      if (files === null) {
+        return reply.status(400).send({ error: 'No file uploaded' });
+      }
+
+      const imageUrl = files.map((file) => `.././uploads/${file.name}`);
+
       const data: createPropertyRequestDTO = value;
 
       const findUser = await UserRepository.findById(data.userId);
@@ -66,11 +78,9 @@ export class createPropertyController {
         address: {
           connect: { id: newAdress.id },
         },
-        images: data.images
-          ? {
-              create: data.images.map((url) => ({ url })),
-            }
-          : undefined,
+        images: {
+          create: imageUrl.map((url) => ({ url })),
+        },
       });
       setAuditData(req, data.userId, 'CREATE_PROPERTY', true, {
         userId: data.userId,
