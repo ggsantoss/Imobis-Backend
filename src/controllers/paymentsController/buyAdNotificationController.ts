@@ -80,7 +80,7 @@ export class BuyAdNotificationController {
   private static async handlePayment(paymentId: string, reply: FastifyReply) {
     const response = await fetchPaymentDetails(paymentId);
 
-    const mpPayment = await response.json();
+    const mpPayment = await response;
 
     if (!mpPayment.external_reference || !statusMap[mpPayment.status]) {
       return reply
