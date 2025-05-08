@@ -5,7 +5,12 @@ export class AddViewController {
   public static async add(req: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = req.params as { id: string };
+
       const advertisementId = parseInt(id, 10);
+
+      if (isNaN(advertisementId)) {
+        return reply.status(400).send({ error: 'id must be a number' });
+      }
 
       if (isNaN(advertisementId)) {
         return;
