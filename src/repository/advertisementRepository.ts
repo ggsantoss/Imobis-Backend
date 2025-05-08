@@ -200,4 +200,18 @@ export class AdRepository {
       totalPage: Math.ceil(total / limit),
     };
   }
+
+  public static async addView(adId: number) {
+    const data: Prisma.AdUpdateInput = {
+      views: {
+        increment: 1,
+      },
+    };
+    const view = await prisma.ad.update({
+      where: { id: adId },
+      data,
+    });
+
+    return view;
+  }
 }
