@@ -9,6 +9,7 @@ import { GetAdsByUserId } from '../../controllers/advertisementController/getAdv
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { verifyAdmin } from '../../middleware/verifyAdmin';
 import { GetAdByPaid } from '../../controllers/advertisementController/getAdByPaid/getAdByPaid';
+import { AddViewController } from '../../controllers/advertisementController/addView/addViewController';
 
 export async function advertisementRoutes(fastify: FastifyInstance) {
   // Rotas públicas
@@ -23,6 +24,7 @@ export async function advertisementRoutes(fastify: FastifyInstance) {
     { preHandler: authMiddleware },
     CreateAdController.createAd,
   );
+
   fastify.patch(
     '/advertisements/:id',
     { preHandler: authMiddleware },
@@ -39,4 +41,6 @@ export async function advertisementRoutes(fastify: FastifyInstance) {
     { preHandler: [authMiddleware, verifyAdmin] },
     DeleteAdController.deleteAd,
   );
+
+  fastify.patch('/advertisements/:id/view', AddViewController.add);
 }

@@ -101,6 +101,7 @@ model Ad {
   visibility  AdVisibility  @default(VISIBLE)
   paid_visible Boolean @default(false)
   paid_visibility_expires_at DateTime?
+  views        Int     @default(0)
   months_paid Int @default(0)
   adType      AdType
   price       Float?
