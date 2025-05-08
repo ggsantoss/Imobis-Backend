@@ -17,14 +17,8 @@ import { updateSchema } from '../../schemas/swagger/property/updateSchema';
 
 export async function propertyRoutes(fastify: FastifyInstance) {
   // Rotas públicas
-  fastify.get(
-    '/properties',
-    GetAllPropertiesController.getAllProperties,
-  );
-  fastify.get(
-    '/property/:id',
-    GetPropertyByIdController.getPropertyById,
-  );
+  fastify.get('/properties', GetAllPropertiesController.getAllProperties);
+  fastify.get('/property/:id', GetPropertyByIdController.getPropertyById);
 
   // Rotas privadas
   fastify.post(

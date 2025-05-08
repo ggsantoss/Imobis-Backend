@@ -8,22 +8,14 @@ import { SoftDeleteController } from '../../controllers/advertisementController/
 import { GetAdsByUserId } from '../../controllers/advertisementController/getAdvertisementsByUserId/getAdsByUserId';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { verifyAdmin } from '../../middleware/verifyAdmin';
-
+import { GetAdByPaid } from '../../controllers/advertisementController/getAdByPaid/getAdByPaid';
 
 export async function advertisementRoutes(fastify: FastifyInstance) {
   // Rotas públicas
-  fastify.get(
-    '/advertisements',
-    GetAllAdController.getAllAd,
-  );
-  fastify.get(
-    '/advertisements/:id',
-    GetAdByIdController.getAdById,
-  );
-  fastify.get(
-    '/users/:id/advertisements',
-    GetAdsByUserId.getAdsByUserId,
-  );
+  fastify.get('/advertisements', GetAllAdController.getAllAd);
+  fastify.get('/advertisements/:id', GetAdByIdController.getAdById);
+  fastify.get('/users/:id/advertisements', GetAdsByUserId.getAdsByUserId);
+  fastify.get('/advertisements/paid', GetAdByPaid.get);
 
   // Rotas privadas
   fastify.post(

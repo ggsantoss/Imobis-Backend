@@ -106,7 +106,7 @@ export class BuyAdController {
           installments: 4,
           default_payment_method_id: 'account_money',
         },
-        notification_url: `https://e3d6-45-184-233-57.ngrok-free.app/payments/notification`,
+        notification_url: `https://93f4-45-184-233-89.ngrok-free.app/payments/notification`,
         expires: true,
         expiration_date_from: now.toISOString(),
         expiration_date_to: oneHourLater.toISOString(),

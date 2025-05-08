@@ -96,7 +96,6 @@ export const buildApp = () => {
   app.register(advertisementRoutes);
 
   scheduleExpirePaidVisibility();
-
   return app;
 };
 

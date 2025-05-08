@@ -57,7 +57,7 @@ export class UserRepository {
     return deletedUser;
   }
 
-  static async updatePassword(userId: number, newPassword: string) {
+  public static async updatePassword(userId: number, newPassword: string) {
     return prisma.user.update({
       where: { id: userId },
       data: { password: newPassword },

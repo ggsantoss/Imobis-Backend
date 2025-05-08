@@ -6,7 +6,6 @@ import { PropertyRepository } from '../../../repository/propertyRepository';
 import { AddressRepository } from '../../../repository/adressRepository';
 import { UserRepository } from '../../../repository/userRepository';
 import { setAuditData } from '../../../helpers/auditHelper';
-import { title } from 'process';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
 
 export class createPropertyController {
