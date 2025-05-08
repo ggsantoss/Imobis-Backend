@@ -178,4 +178,26 @@ export class AdRepository {
       },
     });
   }
+
+  public static async findAdPaid(limit: number, page: number) {
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      prisma.ad.findMany({
+        take: limit,
+        skip,
+        where: { paid_visible: true },
+      }),
+      prisma.ad.count({
+        where: { paid_visible: true },
+      }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      totalPage: Math.ceil(total / limit),
+    };
+  }
 }
