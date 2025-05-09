@@ -24,82 +24,78 @@ afterAll(async () => {
 
 describe('POST /auth/register - Register User', () => {
   it('should return 400 if the email is invalid', async () => {
-    const response = await request(fastify.server)
-      .post('/auth/register')
-      .send({
-        email: 'invalidEmail',
-        password: '123456',
-        name: 'John',
-        cpf: '12345678900',
-        phone: '1234567890',
-        street: 'Main St',
-        city: 'City',
-        state: 'State',
-        zipCode: '12345',
-        country: 'Country',
-      });
+    const response = await request(fastify.server).post('/auth/register').send({
+      email: 'invalidEmail',
+      password: '123456',
+      name: 'John',
+      cpf: '12345678900',
+      phone: '1234567890',
+      street: 'Main St',
+      city: 'City',
+      state: 'State',
+      zipCode: '12345',
+      country: 'Country',
+    });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('"email" must be a valid email');
   });
 
   it('should return 400 if the password is too short', async () => {
-    const response = await request(fastify.server)
-      .post('/auth/register')
-      .send({
-        email: 'test@example.com',
-        password: '123',
-        name: 'John',
-        cpf: '12345678900',
-        phone: '1234567890',
-        street: 'Main St',
-        city: 'City',
-        state: 'State',
-        zipCode: '12345',
-        country: 'Country',
-      });
+    const response = await request(fastify.server).post('/auth/register').send({
+      email: 'test@example.com',
+      password: '123',
+      name: 'John',
+      cpf: '12345678900',
+      phone: '1234567890',
+      street: 'Main St',
+      city: 'City',
+      state: 'State',
+      zipCode: '12345',
+      country: 'Country',
+    });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('"password" length must be at least 6 characters long');
+    expect(response.body.error).toBe(
+      '"password" length must be at least 6 characters long',
+    );
   });
 
   it('should return 400 if the name is too short', async () => {
-    const response = await request(fastify.server)
-      .post('/auth/register')
-      .send({
-        email: 'test@example.com',
-        password: '123456',
-        name: 'Jo',
-        cpf: '12345678900',
-        phone: '1234567890',
-        street: 'Main St',
-        city: 'City',
-        state: 'State',
-        zipCode: '12345',
-        country: 'Country',
-      });
+    const response = await request(fastify.server).post('/auth/register').send({
+      email: 'test@example.com',
+      password: '123456',
+      name: 'Jo',
+      cpf: '12345678900',
+      phone: '1234567890',
+      street: 'Main St',
+      city: 'City',
+      state: 'State',
+      zipCode: '12345',
+      country: 'Country',
+    });
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toBe('"name" length must be at least 3 characters long');
+    expect(response.body.error).toBe(
+      '"name" length must be at least 3 characters long',
+    );
   });
 
   it('should return 400 if the email is already in use', async () => {
     (UserRepository.findByEmail as jest.Mock).mockResolvedValue({ id: 1 });
 
-    const response = await request(fastify.server)
-      .post('/auth/register')
-      .send({
-        email: 'existing@example.com',
-        password: '123456',
-        name: 'John',
-        cpf: '12345678900',
-        phone: '1234567890',
-        street: 'Main St',
-        city: 'City',
-        state: 'State',
-        zipCode: '12345',
-        country: 'Country',
-      });
+    const response = await request(fastify.server).post('/auth/register').send({
+      email: 'existing@example.com',
+      password: '123456',
+      name: 'John',
+      cpf: '12345678900',
+      phone: '1234567890',
+      street: 'Main St',
+      city: 'City',
+      state: 'State',
+      zipCode: '12345',
+      country: 'Country',
+    });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('Email is already in use');
@@ -159,22 +155,22 @@ describe('POST /auth/register - Register User', () => {
 
   it('should return 500 if there is an unexpected error', async () => {
     (UserRepository.findByEmail as jest.Mock).mockResolvedValue(null);
-    (BcryptUtils.hashPassword as jest.Mock).mockRejectedValue(new Error('Hashing error'));
+    (BcryptUtils.hashPassword as jest.Mock).mockRejectedValue(
+      new Error('Hashing error'),
+    );
 
-    const response = await request(fastify.server)
-      .post('/auth/register')
-      .send({
-        email: 'test@example.com',
-        password: '123456',
-        name: 'John',
-        cpf: '12345678900',
-        phone: '1234567890',
-        street: 'Main St',
-        city: 'City',
-        state: 'State',
-        zipCode: '12345',
-        country: 'Country',
-      });
+    const response = await request(fastify.server).post('/auth/register').send({
+      email: 'test@example.com',
+      password: '123456',
+      name: 'John',
+      cpf: '12345678900',
+      phone: '1234567890',
+      street: 'Main St',
+      city: 'City',
+      state: 'State',
+      zipCode: '12345',
+      country: 'Country',
+    });
 
     expect(response.status).toBe(500);
     expect(response.body.error).toBe('Something went wrong');

@@ -68,7 +68,7 @@ export class registerUserController {
       reply.status(201).send(newUser);
     } catch (err) {
       console.log(err);
-      reply.status(500).send({ error: 'Something went wrong ' + err });
+      reply.status(500).send({ error: 'Something went wrong' });
     }
   }
 }
