@@ -4,17 +4,23 @@ import { envConfig } from '../config/envConfig';
 const JWT_SECRET = envConfig.JWT_SECRET;
 const JWT_EXPIRES_IN = '1h';
 
+export interface JwtPayload {
+  userId: number;
+  email: string;
+  role: string;
+}
+
 export class JwtUtils {
-  public static generateToken(payload: object): string {
+  public static generateToken(payload: JwtPayload): string {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
   }
 
-  public static verifyToken(token: string): object | string {
+  public static verifyToken(token: string): JwtPayload | null {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
       return decoded;
     } catch (error) {
-      throw new Error('Invalid or expired token');
+      return null;
     }
   }
 
