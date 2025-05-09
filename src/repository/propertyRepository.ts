@@ -14,8 +14,8 @@ export class PropertyRepository {
       take: limit,
       skip,
       include: {
-        address: true, 
-        user: true,    
+        address: true,
+        user: true,
       },
     });
   }
@@ -67,8 +67,8 @@ export class PropertyRepository {
         userId: userId,
       },
       include: {
-        address: true, 
-        user: true,    
+        address: true,
+        user: true,
       },
     });
   }

@@ -5,6 +5,8 @@ export class AddressRepository {
     street: string;
     city: string;
     state: string;
+    latitude: number;
+    longitude: number;
     zipCode?: string;
     country: string;
   }) {
@@ -13,6 +15,8 @@ export class AddressRepository {
         street: data.street,
         city: data.city,
         state: data.state,
+        latitude: data.latitude,
+        longitude: data.longitude,
         zipCode: data.zipCode,
         country: data.country,
       },
