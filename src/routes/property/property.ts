@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { createPropertyController } from '../../controllers/propertyController/create/createProperyController';
+import { CreatePropertyController } from '../../controllers/propertyController/create/createProperyController';
 import { DeletePropertyController } from '../../controllers/propertyController/delete/deletePropertyController';
 import { GetAllPropertiesController } from '../../controllers/propertyController/getAll/getAllPropertiesController';
 import { GetPropertyByIdController } from '../../controllers/propertyController/getById/getPropertyByIdController';
@@ -18,7 +18,7 @@ export async function propertyRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/property',
     { preHandler: [authMiddleware, upload.array('image', 10)] },
-    createPropertyController.create,
+    CreatePropertyController.create,
   );
 
   fastify.delete(

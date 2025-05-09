@@ -1,5 +1,5 @@
 import Fastify, { FastifyInstance } from 'fastify';
-import { createPropertyController } from './createProperyController';
+import { CreatePropertyController } from './createProperyController';
 import { UserRepository } from '../../../repository/userRepository';
 import { AddressRepository } from '../../../repository/adressRepository';
 import { PropertyRepository } from '../../../repository/propertyRepository';
@@ -9,11 +9,18 @@ jest.mock('../../../repository/userRepository');
 jest.mock('../../../repository/adressRepository');
 jest.mock('../../../repository/propertyRepository');
 
+// Mock do JWT
+jest.mock('../../../utils/jwt', () => ({
+  JwtUtils: {
+    verifyToken: jest.fn(() => ({ userId: 1 })),
+  },
+}));
+
 let fastify: FastifyInstance;
 
 beforeAll(async () => {
   fastify = Fastify();
-  fastify.post('/properties', createPropertyController.create);
+  fastify.post('/properties', CreatePropertyController.create);
   await fastify.ready();
 });
 
@@ -37,17 +44,21 @@ describe('POST /properties - Create Property', () => {
     country: 'Brazil',
     area: 120,
     status: PropertyStatus.AVAILABLE,
-    userId: 1,
     images: [
       'https://example.com/image1.jpg',
       'https://example.com/image2.jpg',
     ],
   };
 
+  const defaultHeaders = {
+    authorization: 'Bearer dummy-token',
+  };
+
   it('should return 400 for invalid payload', async () => {
     const response = await fastify.inject({
       method: 'POST',
       url: '/properties',
+      headers: defaultHeaders,
       payload: { ...validPayload, title: '' },
     });
 
@@ -60,11 +71,12 @@ describe('POST /properties - Create Property', () => {
     const response = await fastify.inject({
       method: 'POST',
       url: '/properties',
+      headers: defaultHeaders,
       payload: validPayload,
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().message).toBe('User not found ');
+    expect(response.json().error).toBe('User not found');
   });
 
   it('should return 201 and created property', async () => {
@@ -78,6 +90,7 @@ describe('POST /properties - Create Property', () => {
     const response = await fastify.inject({
       method: 'POST',
       url: '/properties',
+      headers: defaultHeaders,
       payload: validPayload,
     });
 
@@ -94,6 +107,7 @@ describe('POST /properties - Create Property', () => {
     const response = await fastify.inject({
       method: 'POST',
       url: '/properties',
+      headers: defaultHeaders,
       payload: validPayload,
     });
 
