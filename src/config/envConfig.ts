@@ -10,6 +10,7 @@ interface EnvConfig {
   MP_ACCESS_TOKEN: string;
   FRONTEND_URL: string;
   BCRYPT_SALT_ROUNDS: number;
+  EMAIL: string;
 }
 
 const getEnvConfig = (): EnvConfig => {
@@ -23,6 +24,7 @@ const getEnvConfig = (): EnvConfig => {
       'postgresql://root:root@localhost:5432/mydb?schema=public',
     FRONTEND_URL: process.env.FRONTEND_URL || '',
     BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10),
+    EMAIL: process.env.EMAIL || '',
   };
 };
 

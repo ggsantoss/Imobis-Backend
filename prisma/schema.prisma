@@ -61,6 +61,8 @@ model Address {
   street     String
   city       String
   state      String
+  latitude    Float
+  longitude   Float
   zipCode    String?
   country    String
   createdAt  DateTime    @default(now())

@@ -8,6 +8,7 @@ import { setAuditData } from '../../../helpers/auditHelper';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
 import { JwtUtils } from '../../../utils/jwt';
 import { createPropertyRequestDTO } from './createProperyDTO';
+import { GetCordinatesFromAddress } from '../../../service/getCordinatesFromAddress';
 
 const propertySchema = Joi.object({
   title: Joi.string().required(),
@@ -59,9 +60,19 @@ export class CreatePropertyController {
         return reply.status(400).send({ error: 'User not found' });
       }
 
+      const addressUrl = `${data.street}, ${data.city}, ${data.state}`;
+
+      const coords =
+        await GetCordinatesFromAddress.getCoordinatesFromAddress(addressUrl);
+      if (!coords) {
+        return reply.status(404).send('Address not found, cordenate invalid');
+      }
+
       const address = await AddressRepository.create({
         street: data.street,
         city: data.city,
+        latitude: coords.lat,
+        longitude: coords.lon,
         state: data.state,
         zipCode: data.zipCode,
         country: data.country,
