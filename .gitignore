@@ -4,3 +4,4 @@ prisma/migrations
 database
 redis-data
 .qodo
+uploads/
