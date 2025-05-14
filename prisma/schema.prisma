@@ -8,21 +8,58 @@ datasource db {
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  email        String      @unique
-  password     String
-  name         String
-  phone        String?
-  cpf          String
-  addressId    Int
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id             Int         @id @default(autoincrement())
+  email          String      @unique
+  password       String
+  name           String
+  phone          String?
+  cpf            String
+  addressId      Int
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  address      UserAddress @relation(fields: [addressId], references: [id])
-  properties   Property[]
-  payments     Payment[]
-  ads          Ad[]
-  auditLogs    AuditLog[]
+  address        UserAddress @relation(fields: [addressId], references: [id])
+  properties     Property[]
+  payments       Payment[]
+  ads            Ad[]
+  auditLogs      AuditLog[]
+  organizationUsers OrganizationUser[]
+}
+
+model Organization {
+  id          Int           @id @default(autoincrement())
+  name        String
+  createdAt   DateTime      @default(now())
+  users       OrganizationUser[]
+  properties  Property[]
+
+  ad Ad[]
+  orgInvite OrganizationInvite[]
+}
+
+model OrganizationUser {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  organizationId Int
+  role           Role         @default(AGENT)
+  joinedAt       DateTime     @default(now())
+
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model OrganizationInvite {
+  id Int @id @default(autoincrement())
+  email String
+  token String @unique
+  organizationId Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  used Boolean @default(false)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model UserAddress {
@@ -45,38 +82,40 @@ model Property {
   area        Float
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  userId      Int
-  status      PropertyStatus
+  userId      Int         // Dono do imóvel (quem cadastrou)
   addressId   Int
+  organizationId Int?     // Pertence à organização? (opcional)
 
+  status      PropertyStatus
   user        User        @relation(fields: [userId], references: [id])
   address     Address     @relation(fields: [addressId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
   images      Image[]
   ad          Ad[]
   payments    Payment[]
 }
 
 model Address {
-  id         Int         @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   street     String
   city       String
   state      String
-  latitude    Float
-  longitude   Float
+  latitude   Float
+  longitude  Float
   zipCode    String?
   country    String
-  createdAt  DateTime    @default(now())
+  createdAt  DateTime @default(now())
 
   properties Property[]
 }
 
 model Image {
-  id         Int        @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   url        String
   propertyId Int
-  createdAt  DateTime   @default(now())
+  createdAt  DateTime @default(now())
 
-  property   Property   @relation(fields: [propertyId], references: [id])
+  property   Property @relation(fields: [propertyId], references: [id])
 }
 
 model Payment {
@@ -104,19 +143,21 @@ model Ad {
   paid_visible Boolean @default(false)
   paid_visibility_expires_at DateTime?
   views        Int     @default(0)
-  months_paid Int @default(0)
+  months_paid  Int     @default(0)
   adType      AdType
   price       Float?
+  organizationId Int?
 
-  userId      Int
+  userId      Int                         // Dono do anúncio
   propertyId  Int
 
+  organization Organization? @relation(fields: [organizationId], references: [id])
   user        User          @relation(fields: [userId], references: [id])
   property    Property      @relation(fields: [propertyId], references: [id])
   payments    Payment[]
 }
 
-model BlacklistToken {
+  model BlacklistToken {
   id         Int       @id @default(autoincrement())
   token      String    @unique
   createdAt  DateTime  @default(now())
@@ -161,4 +202,10 @@ enum ActionType {
   UPDATE
   DELETE
   VIEW
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  VIEWER
 }
