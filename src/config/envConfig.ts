@@ -11,6 +11,9 @@ interface EnvConfig {
   FRONTEND_URL: string;
   BCRYPT_SALT_ROUNDS: number;
   EMAIL: string;
+  INVITE_SECRET: string;
+  SMTP_PASS: string;
+  SMTP_USER: string;
 }
 
 const getEnvConfig = (): EnvConfig => {
@@ -25,6 +28,9 @@ const getEnvConfig = (): EnvConfig => {
     FRONTEND_URL: process.env.FRONTEND_URL || '',
     BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS || '10', 10),
     EMAIL: process.env.EMAIL || '',
+    INVITE_SECRET: process.env.INVITE_SECRET || 'default_INVITE_secret',
+    SMTP_PASS: process.env.SMTP_PASS || '',
+    SMTP_USER: process.env.SMTP_USER || '',
   };
 };
 
