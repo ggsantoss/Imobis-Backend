@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { AuditLogRepository } from '../repository/auditLogRepository';
 import { JwtUtils } from '../utils/jwt';
 import { ActionType } from '@prisma/client';
+import { envConfig } from '../config/envConfig';
 
 export async function auditLogMiddleware(
   req: FastifyRequest,
@@ -14,9 +15,13 @@ export async function auditLogMiddleware(
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       try {
-        const decoded = JwtUtils.verifyToken(token) as { userId: number };
+        const decoded = JwtUtils.verifyToken(token, envConfig.JWT_SECRET) as {
+          userId: number;
+        };
         userId = decoded.userId;
-      } catch (e) {}
+      } catch (e) {
+        console.log('Audid log Error: ' + e);
+      }
     }
 
     const getActionType = (method: string): ActionType => {
@@ -26,6 +31,7 @@ export async function auditLogMiddleware(
         case 'GET':
           return ActionType.VIEW;
         case 'PUT':
+          return ActionType.UPDATE;
         case 'PATCH':
           return ActionType.UPDATE;
         case 'DELETE':

@@ -6,6 +6,7 @@ import { JwtUtils } from '../../../utils/jwt';
 import { loginUserRequestDTO } from './loginUserDTO';
 import { auditLogMiddleware } from '../../../middleware/auditLog';
 import { setAuditData } from '../../../helpers/auditHelper';
+import { envConfig } from '../../../config/envConfig';
 
 export class loginUserController {
   static async loginUser(req: FastifyRequest, reply: FastifyReply) {
@@ -38,11 +39,14 @@ export class loginUserController {
         return reply.status(400).send({ error: 'Invalid email or password' });
       }
 
-      const token = JwtUtils.generateToken({
-        userId: user.id,
-        email: user.email,
-        role: 'ADMIN',
-      });
+      const token = JwtUtils.generateToken(
+        {
+          userId: user.id,
+          email: user.email,
+          role: 'ADMIN',
+        },
+        envConfig.JWT_SECRET,
+      );
 
       setAuditData(req, user.id, 'LOGIN', true, {
         email: data.email,
@@ -53,6 +57,7 @@ export class loginUserController {
 
       reply.status(200).send({ token });
     } catch (err) {
+      console.log('An error occured on the CreateUserController: ', err);
       reply.status(500).send({ error: 'Something went wrong' });
     }
   }

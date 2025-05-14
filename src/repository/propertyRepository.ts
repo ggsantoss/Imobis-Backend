@@ -72,4 +72,12 @@ export class PropertyRepository {
       },
     });
   }
+
+  public static async findByOrganizationId(organizationId: number) {
+    const property = await prisma.property.findFirst({
+      where: { organizationId: organizationId },
+    });
+
+    return property;
+  }
 }

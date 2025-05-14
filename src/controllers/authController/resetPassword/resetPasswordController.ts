@@ -21,8 +21,10 @@ export class ResetPasswordController {
 
     const { token, newPassword } = value;
 
-    let decoded: { email?: string; id?: number };
-    decoded = await JwtUtils.verifyRecoveryToken(token); // as { email?: string }
+    const decoded = (await JwtUtils.verifyRecoveryToken(token)) as {
+      email?: string;
+      id?: number;
+    };
     if (!decoded) {
       return reply.status(400).send({ error: 'Token expired or invalid!' });
     }
