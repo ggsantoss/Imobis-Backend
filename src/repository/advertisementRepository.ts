@@ -214,4 +214,12 @@ export class AdRepository {
 
     return view;
   }
+
+  public static async findAdByPropertyId(propertyId: number) {
+    const ad = prisma.ad.findFirst({
+      where: { propertyId: propertyId },
+    });
+
+    return ad;
+  }
 }

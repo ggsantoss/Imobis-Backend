@@ -1,23 +1,22 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../config/envConfig';
 
-const JWT_SECRET = envConfig.JWT_SECRET;
 const JWT_EXPIRES_IN = '1h';
 
 export interface JwtPayload {
-  userId: number;
-  email: string;
-  role: string;
+  userId?: number;
+  email?: string;
+  role?: string;
 }
 
 export class JwtUtils {
-  public static generateToken(payload: JwtPayload): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  public static generateToken(payload: JwtPayload, secret: string): string {
+    return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN });
   }
 
-  public static verifyToken(token: string): JwtPayload | null {
+  public static verifyToken(token: string, secret: string): JwtPayload | null {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+      const decoded = jwt.verify(token, secret) as JwtPayload;
       return decoded;
     } catch (error) {
       console.log(error);
@@ -25,7 +24,7 @@ export class JwtUtils {
     }
   }
 
-  public static verifyRecoveryToken(token: string): any {
+  public static verifyRecoveryToken(token: string): unknown {
     try {
       if (typeof token !== 'string' || token.split('.').length !== 3) {
         console.log('[JWT VERIFY] Malformed token detected');

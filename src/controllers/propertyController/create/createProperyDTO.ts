@@ -16,4 +16,5 @@ export interface createPropertyRequestDTO {
   area: number;
   status: PropertyStatus;
   images?: string[];
+  organizationId?: number;
 }

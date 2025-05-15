@@ -9,6 +9,9 @@ import { auditLogMiddleware } from '../../../middleware/auditLog';
 import { JwtUtils } from '../../../utils/jwt';
 import { createPropertyRequestDTO } from './createProperyDTO';
 import { GetCordinatesFromAddress } from '../../../service/getCordinatesFromAddress';
+import { OrganizationRepository } from '../../../repository/organizationRepository';
+import { OrganizationUserRepository } from '../../../repository/organizationUserRepository';
+import { envConfig } from '../../../config/envConfig';
 
 const propertySchema = Joi.object({
   title: Joi.string().required(),
@@ -20,6 +23,7 @@ const propertySchema = Joi.object({
   zipCode: Joi.string().optional(),
   country: Joi.string().required(),
   area: Joi.number().required(),
+  organizationId: Joi.number().optional(),
   status: Joi.string()
     .valid(PropertyStatus.AVAILABLE, PropertyStatus.SOLD, PropertyStatus.RENTED)
     .required(),
@@ -40,9 +44,40 @@ export class CreatePropertyController {
       }
 
       const token = authHeader.split(' ')[1];
-      const decoded = JwtUtils.verifyToken(token);
-      if (!decoded) {
+      const decoded = JwtUtils.verifyToken(token, envConfig.JWT_SECRET);
+      if (!decoded || decoded.userId === undefined) {
         return reply.status(401).send({ error: 'Invalid token' });
+      }
+
+      const data: createPropertyRequestDTO = value;
+
+      let organization;
+
+      if (data.organizationId !== undefined && data.organizationId !== null) {
+        organization = await OrganizationRepository.findById(
+          data.organizationId,
+        );
+
+        if (organization == null || organization == undefined) {
+          return reply.status(404).send({
+            error: 'Organization Not Found',
+          });
+        }
+
+        const alreadyInOrganization =
+          await OrganizationUserRepository.alreadyInOrg(
+            decoded.userId,
+            data.organizationId,
+          );
+
+        if (
+          !alreadyInOrganization ||
+          alreadyInOrganization.id !== organization.id
+        ) {
+          return reply.status(403).send({
+            error: "You can't create a property for this organization",
+          });
+        }
       }
 
       const files = req.files
@@ -53,15 +88,12 @@ export class CreatePropertyController {
 
       const imageUrls = files.map((file) => `.././uploads/${file.name}`);
 
-      const data: createPropertyRequestDTO = value;
-
       const user = await UserRepository.findById(decoded.userId);
-      if (user === null || user === undefined) {
+      if (!user) {
         return reply.status(400).send({ error: 'User not found' });
       }
 
       const addressUrl = `${data.street}, ${data.city}, ${data.state}`;
-
       const coords =
         await GetCordinatesFromAddress.getCoordinatesFromAddress(addressUrl);
       if (!coords) {
@@ -78,7 +110,7 @@ export class CreatePropertyController {
         country: data.country,
       });
 
-      const property = await PropertyRepository.create({
+      const propertyData: any = {
         title: data.title,
         description: data.description,
         price: data.price,
@@ -93,7 +125,17 @@ export class CreatePropertyController {
         images: {
           create: imageUrls.map((url) => ({ url })),
         },
-      });
+      };
+
+      if (
+        data.organizationId !== undefined &&
+        data.organizationId !== null &&
+        !isNaN(data.organizationId)
+      ) {
+        propertyData.organization = { connect: { id: data.organizationId } };
+      }
+
+      const property = await PropertyRepository.create(propertyData);
 
       setAuditData(req, decoded.userId, 'CREATE_PROPERTY', true, {
         userId: decoded.userId,

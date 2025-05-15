@@ -6,10 +6,14 @@ import { AddressRepository } from '../../../repository/adressRepository';
 import { PropertyRepository } from '../../../repository/propertyRepository';
 import { PropertyStatus } from '@prisma/client';
 import { GetCordinatesFromAddress } from '../../../service/getCordinatesFromAddress';
+import { OrganizationRepository } from '../../../repository/organizationRepository';
+import { OrganizationUserRepository } from '../../../repository/organizationUserRepository';
 
 jest.mock('../../../repository/userRepository');
 jest.mock('../../../repository/adressRepository');
 jest.mock('../../../repository/propertyRepository');
+jest.mock('../../../repository/organizationRepository');
+jest.mock('../../../repository/organizationUserRepository');
 jest.mock('../../../service/getCordinatesFromAddress');
 jest.mock('../../../middleware/auditLog', () => ({
   auditLogMiddleware: jest.fn().mockResolvedValue(undefined),
@@ -27,7 +31,7 @@ let fastify: FastifyInstance;
 
 beforeAll(async () => {
   fastify = Fastify();
-  fastify.register(multipart); // necessário para multipart
+  fastify.register(multipart);
   fastify.post('/properties', async (req, res) => {
     return CreatePropertyController.create(req, res);
   });
@@ -54,10 +58,8 @@ describe('POST /properties - Create Property', () => {
     country: 'Brazil',
     area: 120,
     status: PropertyStatus.AVAILABLE,
-    images: [
-      'https://example.com/image1.jpg',
-      'https://example.com/image2.jpg',
-    ],
+    images: ['https://example.com/image1.jpg'],
+    organizationId: 10,
   };
 
   const defaultHeaders = {
@@ -78,6 +80,12 @@ describe('POST /properties - Create Property', () => {
 
   it('should return 400 if user is not found', async () => {
     (UserRepository.findById as jest.Mock).mockResolvedValue(null);
+    (OrganizationRepository.findById as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
+    (OrganizationUserRepository.alreadyInOrg as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
 
     const response = await fastify.inject({
       method: 'POST',
@@ -92,6 +100,12 @@ describe('POST /properties - Create Property', () => {
 
   it('should return 404 if coordinates not found', async () => {
     (UserRepository.findById as jest.Mock).mockResolvedValue({ id: 1 });
+    (OrganizationRepository.findById as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
+    (OrganizationUserRepository.alreadyInOrg as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
     (
       GetCordinatesFromAddress.getCoordinatesFromAddress as jest.Mock
     ).mockResolvedValue(null);
@@ -109,6 +123,12 @@ describe('POST /properties - Create Property', () => {
 
   it('should return 500 if address creation fails', async () => {
     (UserRepository.findById as jest.Mock).mockResolvedValue({ id: 1 });
+    (OrganizationRepository.findById as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
+    (OrganizationUserRepository.alreadyInOrg as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
     (
       GetCordinatesFromAddress.getCoordinatesFromAddress as jest.Mock
     ).mockResolvedValue({
@@ -132,6 +152,12 @@ describe('POST /properties - Create Property', () => {
 
   it('should return 201 and created property (without files)', async () => {
     (UserRepository.findById as jest.Mock).mockResolvedValue({ id: 1 });
+    (OrganizationRepository.findById as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
+    (OrganizationUserRepository.alreadyInOrg as jest.Mock).mockResolvedValue({
+      id: 10,
+    });
     (
       GetCordinatesFromAddress.getCoordinatesFromAddress as jest.Mock
     ).mockResolvedValue({
@@ -167,6 +193,7 @@ describe('POST /properties - Create Property', () => {
   });
 
   it('should return 401 if token is invalid', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const jwt = require('../../../utils/jwt');
     jwt.JwtUtils.verifyToken.mockReturnValue(null);
 
@@ -180,4 +207,41 @@ describe('POST /properties - Create Property', () => {
     expect(response.statusCode).toBe(401);
     expect(response.json().error).toBe('Invalid token');
   });
+
+  // TODO
+  // it('should return 404 if organization not found', async () => {
+  //   (OrganizationRepository.findById as jest.Mock).mockResolvedValue(null);
+
+  //   const response = await fastify.inject({
+  //     method: 'POST',
+  //     url: '/properties',
+  //     headers: defaultHeaders,
+  //     payload: validPayload,
+  //   });
+
+  //   expect(response.statusCode).toBe(404);
+  //   expect(response.json().error).toBe('Organization Not Found');
+  // });
+
+  // TODO
+  // it('should return 401 if user not in organization', async () => {
+  //   (OrganizationRepository.findById as jest.Mock).mockResolvedValue({
+  //     id: 10,
+  //   });
+  //   (OrganizationUserRepository.alreadyInOrg as jest.Mock).mockResolvedValue(
+  //     null,
+  //   );
+
+  //   const response = await fastify.inject({
+  //     method: 'POST',
+  //     url: '/properties',
+  //     headers: defaultHeaders,
+  //     payload: validPayload,
+  //   });
+
+  //   expect(response.statusCode).toBe(401);
+  //   expect(response.json().error).toBe(
+  //     "You can't create a property for this organization",
+  //   );
+  // });
 });

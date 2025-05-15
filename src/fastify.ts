@@ -10,6 +10,7 @@ import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import { scheduleExpirePaidVisibility } from './jobs/expiredPaidVisibility';
 import multipart from '@fastify/multipart';
+import { organizationRoutes } from './routes/organization/organization';
 
 export const buildApp = () => {
   const app = Fastify({
@@ -51,7 +52,6 @@ export const buildApp = () => {
   });
 
   app.register(multipart);
-  // app.register(fastifymulter.contentParser);
 
   app.register(fastifyCors, {
     origin: (origin, cb) => {
@@ -97,6 +97,7 @@ export const buildApp = () => {
   app.register(userRoutes);
   app.register(propertyRoutes);
   app.register(paymentRoutes);
+  app.register(organizationRoutes);
   app.register(advertisementRoutes);
 
   scheduleExpirePaidVisibility();
