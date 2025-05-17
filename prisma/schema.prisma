@@ -24,6 +24,9 @@ model User {
   ads            Ad[]
   auditLogs      AuditLog[]
   organizationUsers OrganizationUser[]
+
+  reviewsGiven   Review[] @relation("UserReviewsGiven")
+  reviewsReceived Review[] @relation("UserReviewsReceived")
 }
 
 model Organization {
@@ -35,6 +38,7 @@ model Organization {
 
   ad Ad[]
   orgInvite OrganizationInvite[]
+  reviewsReceived  Review[] @relation("OrgReviewsReceived")
 }
 
 model OrganizationUser {
@@ -62,6 +66,20 @@ model OrganizationInvite {
   organization Organization @relation(fields: [organizationId], references: [id])
 }
 
+model Review {
+  id          Int       @id @default(autoincrement())
+  rating      Int
+  comment     String?
+  reviewerId  Int
+  createdAt   DateTime  @default(now())
+  userTargetId    Int?
+  orgTargetId     Int?
+
+  reviewer    User         @relation("UserReviewsGiven", fields: [reviewerId], references: [id])
+  userTarget  User?        @relation("UserReviewsReceived", fields: [userTargetId], references: [id], map: "user_target_fk")
+  orgTarget   Organization? @relation("OrgReviewsReceived", fields: [orgTargetId], references: [id], map: "org_target_fk")
+}
+
 model UserAddress {
   id        Int      @id @default(autoincrement())
   street    String
@@ -82,9 +100,9 @@ model Property {
   area        Float
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  userId      Int         // Dono do imóvel (quem cadastrou)
+  userId      Int
   addressId   Int
-  organizationId Int?     // Pertence à organização? (opcional)
+  organizationId Int?
 
   status      PropertyStatus
   user        User        @relation(fields: [userId], references: [id])
@@ -148,7 +166,7 @@ model Ad {
   price       Float?
   organizationId Int?
 
-  userId      Int                         // Dono do anúncio
+  userId      Int
   propertyId  Int
 
   organization Organization? @relation(fields: [organizationId], references: [id])
