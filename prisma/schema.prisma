@@ -24,6 +24,7 @@ model User {
   ads            Ad[]
   auditLogs      AuditLog[]
   organizationUsers OrganizationUser[]
+  favoriteAds FavoriteAd[]
 }
 
 model Organization {
@@ -155,7 +156,21 @@ model Ad {
   user        User          @relation(fields: [userId], references: [id])
   property    Property      @relation(fields: [propertyId], references: [id])
   payments    Payment[]
+  favorites   FavoriteAd[]
 }
+
+model FavoriteAd {
+  id     Int @id @default(autoincrement())
+
+  userId Int
+  adId   Int
+
+  user   User @relation(fields: [userId], references: [id])
+  ad     Ad   @relation(fields: [adId], references: [id])
+
+  @@unique([userId, adId])
+}
+
 
   model BlacklistToken {
   id         Int       @id @default(autoincrement())
