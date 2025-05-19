@@ -5,7 +5,17 @@ export const registerSchema = {
     'Registers a new user by validating the user input (email, password, name, cpf, phone, and address data), hashing the password, and saving the user to the database.',
   body: {
     type: 'object',
-    required: ['email', 'password', 'name', 'cpf', 'street', 'city', 'state', 'zipCode', 'country'],
+    required: [
+      'email',
+      'password',
+      'name',
+      'cpf',
+      'street',
+      'city',
+      'state',
+      'zipCode',
+      'country',
+    ],
     properties: {
       email: {
         type: 'string',

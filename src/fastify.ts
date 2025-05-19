@@ -11,6 +11,7 @@ import swaggerUI from '@fastify/swagger-ui';
 import { scheduleExpirePaidVisibility } from './jobs/expiredPaidVisibility';
 import multipart from '@fastify/multipart';
 import { organizationRoutes } from './routes/organization/organization';
+import { favoriteAdRoutes } from './routes/favoriteAd/favoriteAd';
 
 export const buildApp = () => {
   const app = Fastify({
@@ -99,6 +100,7 @@ export const buildApp = () => {
   app.register(paymentRoutes);
   app.register(organizationRoutes);
   app.register(advertisementRoutes);
+  app.register(favoriteAdRoutes);
 
   scheduleExpirePaidVisibility();
   return app;
