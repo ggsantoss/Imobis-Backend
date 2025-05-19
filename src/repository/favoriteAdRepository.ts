@@ -12,10 +12,12 @@ export class favoriteAdRepository {
     return favoriteAd;
   }
 
-  public static async delete(id: number): Promise<void> {
-    await prisma.favoriteAd.delete({
+  public static async delete(id: number) {
+    const deleted = await prisma.favoriteAd.delete({
       where: { id: id },
     });
+
+    return deleted;
   }
 
   public static async getById(id: number): Promise<FavoriteAd | null> {
@@ -59,6 +61,20 @@ export class favoriteAdRepository {
     const favoriteAd = await prisma.favoriteAd.update({
       where: { id: id },
       data,
+    });
+
+    return favoriteAd;
+  }
+
+  public static async countFavoritesAd() {
+    return prisma.favoriteAd.count();
+  }
+
+  public static async findOwnerByFavoriteAdId(
+    id: number,
+  ): Promise<FavoriteAd | null> {
+    const favoriteAd = await prisma.favoriteAd.findFirst({
+      where: { userId: id },
     });
 
     return favoriteAd;
