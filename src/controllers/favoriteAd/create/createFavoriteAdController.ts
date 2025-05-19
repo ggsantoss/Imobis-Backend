@@ -42,6 +42,15 @@ export class CreateFavoriteAdController {
         return reply.status(404).send({ error: 'This ad does not exist' });
       }
 
+      const favoriteAdAlreadyExists =
+        await favoriteAdRepository.getFavoriteAdByUserId(decoded.userId, ad.id);
+
+      if (favoriteAdAlreadyExists) {
+        return reply
+          .status(400)
+          .send({ error: 'This ad is already saved as a favorite one' });
+      }
+
       const favoriteAd = await favoriteAdRepository.create({
         ad: { connect: { id: ad.id } },
         user: { connect: { id: decoded.userId } },

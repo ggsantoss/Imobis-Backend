@@ -79,4 +79,15 @@ export class favoriteAdRepository {
 
     return favoriteAd;
   }
+
+  public static async getFavoriteAdByUserId(
+    userId: number,
+    adId: number,
+  ): Promise<FavoriteAd | null> {
+    const favoriteAd = await prisma.favoriteAd.findFirst({
+      where: { userId: userId, adId: adId },
+    });
+
+    return favoriteAd;
+  }
 }
