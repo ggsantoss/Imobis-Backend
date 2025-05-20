@@ -1,6 +1,7 @@
 export interface BuyAdRequestDTO {
   quantity: number;
   adId: number;
+  organizationId: number;
 }
 
 export interface WebhookRequestDTO {

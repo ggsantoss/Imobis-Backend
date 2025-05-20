@@ -9,12 +9,14 @@ import { AdRepository } from '../../repository/advertisementRepository';
 import { UserRepository } from '../../repository/userRepository';
 import { UserAddressRepository } from '../../repository/userAddressRepository';
 import { PaymentRepository } from '../../repository/paymentRepository';
+import { OrganizationRepository } from '../../repository/organizationRepository';
 
 export class BuyAdController {
   static async buy(req: FastifyRequest, reply: FastifyReply) {
     const schema = Joi.object({
       quantity: Joi.number().required(),
       adId: Joi.number().required(),
+      organizationId: Joi.number().optional(),
     });
 
     const { error, value } = schema.validate(req.body);
@@ -29,21 +31,54 @@ export class BuyAdController {
       return reply.status(401).send({ error: 'Token not provided' });
     }
 
-    const decodedToken = jwt.verify(token, envConfig.JWT_SECRET) as {
-      userId: number;
-    };
+    let decodedToken: { userId: number };
+    try {
+      decodedToken = jwt.verify(token, envConfig.JWT_SECRET) as {
+        userId: number;
+      };
+    } catch (e) {
+      console.log(e);
+      return reply.status(401).send({ error: 'Invalid token' });
+    }
 
-    const { quantity, adId }: BuyAdRequestDTO = value;
+    const { quantity, adId, organizationId }: BuyAdRequestDTO = value;
 
     const ad = await AdRepository.findById(adId);
     if (!ad) {
       return reply.status(404).send({ error: 'Ad not found' });
     }
 
-    if (decodedToken.userId !== ad.userId) {
-      return reply
-        .status(403)
-        .send({ error: 'You cannot pay for an ad that is not yours' });
+    if (ad.organizationId && !organizationId) {
+      return reply.status(400).send({
+        error:
+          'This ad belongs to an organization. organizationId is required.',
+      });
+    }
+
+    if (organizationId) {
+      const organization =
+        await OrganizationRepository.findById(organizationId);
+      if (!organization) {
+        return reply
+          .status(404)
+          .send({ error: 'This organization does not exist' });
+      }
+
+      const userInOrg = await OrganizationRepository.isUserInOrganization(
+        decodedToken.userId,
+        organizationId,
+      );
+      if (!userInOrg) {
+        return reply
+          .status(403)
+          .send({ error: 'You are not part of this organization' });
+      }
+
+      if (ad.organizationId !== organizationId) {
+        return reply
+          .status(403)
+          .send({ error: 'Ad does not belong to this organization' });
+      }
     }
 
     const user = await UserRepository.findById(ad.userId);
@@ -57,8 +92,7 @@ export class BuyAdController {
     }
 
     const externalReference = `ORD-${ad.id}-USR-${user.id}-${Date.now()}`;
-    const pattern = /^ORD-\d+-USR-\d+-\d+$/;
-    if (!pattern.test(externalReference)) {
+    if (!/^ORD-\d+-USR-\d+-\d+$/.test(externalReference)) {
       return reply
         .status(400)
         .send({ error: 'Invalid format for external_reference' });
@@ -106,7 +140,7 @@ export class BuyAdController {
           installments: 4,
           default_payment_method_id: 'account_money',
         },
-        notification_url: `https://93f4-45-184-233-89.ngrok-free.app/payments/notification`,
+        notification_url: `https://1f0f-45-184-233-148.ngrok-free.app/payments/notification`,
         expires: true,
         expiration_date_from: now.toISOString(),
         expiration_date_to: oneHourLater.toISOString(),
@@ -127,6 +161,9 @@ export class BuyAdController {
       user: { connect: { id: user.id } },
       ad: { connect: { id: ad.id } },
       property: { connect: { id: ad.propertyId } },
+      ...(organizationId && {
+        organization: { connect: { id: organizationId } },
+      }),
     });
 
     return reply.status(201).send({ status: 'success', initPoint });

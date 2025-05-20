@@ -35,6 +35,7 @@ model Organization {
   properties  Property[]
 
   ad Ad[]
+  payment Payment[]
   orgInvite OrganizationInvite[]
 }
 
@@ -130,8 +131,10 @@ model Payment {
   userId           Int
   propertyId       Int?
   adId             Int?
+  organizationId   Int?
 
-  user             User      @relation(fields: [userId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  user             User?      @relation(fields: [userId], references: [id])
   property         Property? @relation(fields: [propertyId], references: [id])
   ad               Ad?       @relation(fields: [adId], references: [id])
 }
