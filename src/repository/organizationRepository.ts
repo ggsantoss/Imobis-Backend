@@ -37,4 +37,17 @@ export class OrganizationRepository {
 
     return orgs;
   }
+  public static async isUserInOrganization(
+    userId: number,
+    organizationId: number,
+  ) {
+    return await prisma.organizationUser.findUnique({
+      where: {
+        userId_organizationId: {
+          userId,
+          organizationId,
+        },
+      },
+    });
+  }
 }
